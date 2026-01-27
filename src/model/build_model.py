@@ -1,8 +1,6 @@
 # src/model/build_model.py
 from __future__ import annotations
-
 from typing import Any, Dict, Iterable, Tuple, List
-
 import pyomo.environ as pyo
 
 

@@ -152,7 +152,7 @@ def main() -> None:
     else:
         print("HiGHS not available; build-only smoke test passed.")
 
-    print("✅ build_model smoke test passed.")
+    print("build_model smoke test passed.")
 
 
 if __name__ == "__main__":
