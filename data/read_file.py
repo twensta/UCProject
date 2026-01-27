@@ -62,18 +62,58 @@ def read_smspp_file(filename):
             arc_name = gname
             data['SETS']['A'].append(arc_name)
 
-            # Dimensions
             num_intervals = g.dimensions['NumberIntervals'].size if 'NumberIntervals' in g.dimensions else TimeHorizon
             num_res = g.dimensions['NumberReservoirs'].size if 'NumberReservoirs' in g.dimensions else 1
             num_arcs = g.dimensions['NumberArcs'].size if 'NumberArcs' in g.dimensions else 1
             total_pieces = g.dimensions['TotalNumberPieces'].size if 'TotalNumberPieces' in g.dimensions else 1
 
-            # Réservoirs
+            # --- Réservoirs ---
             for r in range(num_res):
                 res_name = f"{arc_name}_res{r}"
                 data['SETS']['V'].append(res_name)
 
                 inflows = g['Inflows'][r,:].tolist() if 'Inflows' in g.variables else [0.0]*num_intervals
+                V0 = float(np.squeeze(g['InitialVolumetric'][r])) if 'InitialVolumetric' in g.variables else 0.0
+                Vmin = g['MinVolumetric'][r,:].tolist() if 'MinVolumetric' in g.variables else [0.0]*num_intervals
+                Vmax = g['MaxVolumetric'][r,:].tolist() if 'MaxVolumetric' in g.variables else [1e6]*num_intervals
+
+                # Assigner le dictionnaire complet
+                data['reservoirs'][res_name] = {
+                    'V0': V0,
+                    'inflow': {t+1: inflows[t] for t in range(num_intervals)},
+                    'Vmin': {t+1: Vmin[t] for t in range(num_intervals)},
+                    'Vmax': {t+1: Vmax[t] for t in range(num_intervals)}
+                }
+
+            # --- Arcs ---
+            for a in range(num_arcs):
+                arc_name = f"{gname}_arc{a}"
+                data['SETS']['A'].append(arc_name)
+
+                min_flow = g['MinFlow'][:,a].tolist() if 'MinFlow' in g.variables else [0.0]*num_intervals
+                max_flow = g['MaxFlow'][:,a].tolist() if 'MaxFlow' in g.variables else [1e6]*num_intervals
+                min_power = g['MinPower'][:,a].tolist() if 'MinPower' in g.variables else [0.0]*num_intervals
+                max_power = g['MaxPower'][:,a].tolist() if 'MaxPower' in g.variables else [1e6]*num_intervals
+                RU_arr = g['DeltaRampUp'][:,a].tolist() if 'DeltaRampUp' in g.variables else [0.0]*num_intervals
+                RD_arr = g['DeltaRampDown'][:,a].tolist() if 'DeltaRampDown' in g.variables else [0.0]*num_intervals
+
+                data['arcs'][arc_name] = {
+                    'from': arc_name,
+                    'to': arc_name,
+                    'f_min': {t+1: min_flow[t] for t in range(num_intervals)},
+                    'f_max': {t+1: max_flow[t] for t in range(num_intervals)},
+                    'RU': {t+1: RU_arr[t] for t in range(num_intervals)},
+                    'RD': {t+1: RD_arr[t] for t in range(num_intervals)},
+                    'p_min': {t+1: min_power[t] for t in range(num_intervals)},
+                    'p_max': {t+1: max_power[t] for t in range(num_intervals)}
+                }
+
+            # --- Segments de turbines ---
+            if 'LinearTerm' in g.variables and 'ConstantTerm' in g.variables:
+                linear = g['LinearTerm'][:].tolist()
+                constant = g['ConstantTerm'][:].tolist()
+                for j in range(len(linear)):
+                    data['turbine_segments'][(arc_name,j)] = {'p': linear[j], 'rho': constant[j]}            
     nc.close()
     return data
 
@@ -82,5 +122,6 @@ filename = "/home/enzosawaya/ProjetOptiDisc/UCProject/data/smspp-hydro-units-mai
 data = read_smspp_file(filename)
 
 print(data.keys())
-print(data['thermal'])
+print(data['arcs']['UnitBlock_159_arc4'])
+
 
