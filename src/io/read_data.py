@@ -7,14 +7,11 @@ from typing import Any, Dict, Union, Optional
 import netCDF4
 import numpy as np
 
-def read_smspp_file(filename: Union[str, Path]) -> Dict[str, Any]:
+def read_smspp_file(filename):
     """
-    Lit UN fichier SMSPP netCDF4 (.nc4) et retourne un dict "raw_data".
-
-    Note:
-    - Ce dict est "brut" (raw). La normalisation vers le format exact attendu par build_model
-      doit être faite dans une étape séparée (validate/transform).
+    Lit UN fichier SMSPP netCDF4 (.nc4) et retourne un dict "data".
     """
+    
     filename = Path(filename)
     data: Dict[str, Any] = {}
 
