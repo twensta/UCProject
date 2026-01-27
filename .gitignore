@@ -1,0 +1,48 @@
+# Environnement virtuel
+uc_env/
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*$py.class
+
+# Fichiers temporaires Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Fichiers de solveurs / sorties modèles
+*.lp
+*.mps
+*.sol
+*.glpk
+*.cbc
+*.sav
+
+# Données temporaires
+*.csv~
+*.xlsx~
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
