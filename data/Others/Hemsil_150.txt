@@ -1,0 +1,88 @@
+netcdf Hemsil_150 {
+
+// global attributes:
+		:SMS++_file_type = 1 ;
+
+group: Block_0 {
+  dimensions:
+  	TimeHorizon = 96 ;
+  	NumberNodes = 1 ;
+  	NumberUnits = 1 ;
+  variables:
+  	double ActivePowerDemand(NumberNodes, TimeHorizon) ;
+
+  // group attributes:
+  		:type = "UCBlock" ;
+  data:
+
+   ActivePowerDemand =
+  150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 
+      150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 
+      150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 
+      150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 
+      150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 
+      150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 
+      150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150 ;
+
+  group: UnitBlock_0 {
+    dimensions:
+    	One = 1 ;
+    	NumberArcs = 4 ;
+    	NumberReservoirs = 2 ;
+    	TotalNumberPieces = 4 ;
+    	NumberIntervals = 96 ;
+    variables:
+    	int StartArc(NumberArcs) ;
+    	int EndArc(NumberArcs) ;
+    	double Inflows(NumberReservoirs, One) ;
+    	double InitialVolumetric(NumberReservoirs) ;
+    	double MaxVolumetric(NumberReservoirs, One) ;
+    	int InitialFlowRate(NumberArcs) ;
+    	double DeltaRampUp(One, NumberArcs) ;
+    	double DeltaRampDown(One, NumberArcs) ;
+    	double MaxFlow(One, NumberArcs) ;
+    	double MaxPower(One, NumberArcs) ;
+    	int NumberPieces(NumberArcs) ;
+    	double LinearTerm(TotalNumberPieces) ;
+    	double ConstantTerm(TotalNumberPieces) ;
+
+    // group attributes:
+    		:type = "HydroUnitBlock" ;
+    data:
+
+     StartArc = 0, 0, 1, 1 ;
+
+     EndArc = 1, 1, 2, 2 ;
+
+     Inflows =
+  0.0230657504407391,
+  0.0552107366869878 ;
+
+     InitialVolumetric = 102.5, 0.35 ;
+
+     MaxVolumetric =
+  205,
+  0.7 ;
+
+     InitialFlowRate = 0, 0, 0, 0 ;
+
+     DeltaRampUp =
+  35, 35, 49, 49 ;
+
+     DeltaRampDown =
+  35, 35, 49, 49 ;
+
+     MaxFlow =
+  0.0288, 0.0288, 0.0558, 0.0558 ;
+
+     MaxPower =
+  35, 35, 49, 49 ;
+
+     NumberPieces = 1, 1, 1, 1 ;
+
+     LinearTerm = 1215, 1215, 878, 878 ;
+
+     ConstantTerm = 0, 0, 0, 0 ;
+    } // group UnitBlock_0
+  } // group Block_0
+}

@@ -1,0 +1,89 @@
+netcdf Slunkajavrre_\&_Other_30 {
+
+// global attributes:
+		:SMS++_file_type = 1 ;
+
+group: Block_0 {
+  dimensions:
+  	TimeHorizon = 96 ;
+  	NumberNodes = 1 ;
+  	NumberUnits = 1 ;
+  variables:
+  	double ActivePowerDemand(NumberNodes, TimeHorizon) ;
+
+  // group attributes:
+  		:type = "UCBlock" ;
+  data:
+
+   ActivePowerDemand =
+  30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
+      30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
+      30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
+      30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
+      30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 
+      30, 30, 30, 30, 30, 30 ;
+
+  group: UnitBlock_0 {
+    dimensions:
+    	One = 1 ;
+    	NumberArcs = 5 ;
+    	NumberReservoirs = 3 ;
+    	TotalNumberPieces = 5 ;
+    	NumberIntervals = 96 ;
+    variables:
+    	int StartArc(NumberArcs) ;
+    	int EndArc(NumberArcs) ;
+    	double Inflows(NumberReservoirs, One) ;
+    	double InitialVolumetric(NumberReservoirs) ;
+    	double MaxVolumetric(NumberReservoirs, One) ;
+    	int InitialFlowRate(NumberArcs) ;
+    	double DeltaRampUp(One, NumberArcs) ;
+    	double DeltaRampDown(One, NumberArcs) ;
+    	double MaxFlow(One, NumberArcs) ;
+    	double MaxPower(One, NumberArcs) ;
+    	int NumberPieces(NumberArcs) ;
+    	double LinearTerm(TotalNumberPieces) ;
+    	double ConstantTerm(TotalNumberPieces) ;
+
+    // group attributes:
+    		:type = "HydroUnitBlock" ;
+    data:
+
+     StartArc = 0, 1, 1, 1, 2 ;
+
+     EndArc = 1, 2, 2, 2, 3 ;
+
+     Inflows =
+  0.00166162860512337,
+  0.000902110785971629,
+  0.0040166619665931 ;
+
+     InitialVolumetric = 42.5, 38.5, 2 ;
+
+     MaxVolumetric =
+  85,
+  77,
+  4 ;
+
+     InitialFlowRate = 0, 0, 0, 0, 0 ;
+
+     DeltaRampUp =
+  21, 7.76666666666667, 7.76666666666667, 7.76666666666667, 11.3 ;
+
+     DeltaRampDown =
+  21, 7.76666666666667, 7.76666666666667, 7.76666666666667, 11.3 ;
+
+     MaxFlow =
+  0.012012, 0.015972, 0.015972, 0.015972, 0.034248 ;
+
+     MaxPower =
+  21, 7.76666666666667, 7.76666666666667, 7.76666666666667, 11.3 ;
+
+     NumberPieces = 1, 1, 1, 1, 1 ;
+
+     LinearTerm = 583, 430, 430, 430, 109 ;
+
+     ConstantTerm = 0, 0, 0, 0, 0 ;
+    } // group UnitBlock_0
+  } // group Block_0
+}

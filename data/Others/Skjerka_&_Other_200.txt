@@ -1,0 +1,97 @@
+netcdf Skjerka_\&_Other_200 {
+
+// global attributes:
+		:SMS++_file_type = 1 ;
+
+group: Block_0 {
+  dimensions:
+  	TimeHorizon = 96 ;
+  	NumberNodes = 1 ;
+  	NumberUnits = 1 ;
+  variables:
+  	double ActivePowerDemand(NumberNodes, TimeHorizon) ;
+
+  // group attributes:
+  		:type = "UCBlock" ;
+  data:
+
+   ActivePowerDemand =
+  200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 
+      200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 
+      200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 
+      200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 
+      200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 
+      200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 
+      200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200 ;
+
+  group: UnitBlock_0 {
+    dimensions:
+    	One = 1 ;
+    	NumberArcs = 10 ;
+    	NumberReservoirs = 6 ;
+    	TotalNumberPieces = 10 ;
+    	NumberIntervals = 96 ;
+    variables:
+    	int StartArc(NumberArcs) ;
+    	int EndArc(NumberArcs) ;
+    	double Inflows(NumberReservoirs, One) ;
+    	double InitialVolumetric(NumberReservoirs) ;
+    	double MaxVolumetric(NumberReservoirs, One) ;
+    	int InitialFlowRate(NumberArcs) ;
+    	double DeltaRampUp(One, NumberArcs) ;
+    	double DeltaRampDown(One, NumberArcs) ;
+    	double MaxFlow(One, NumberArcs) ;
+    	double MaxPower(One, NumberArcs) ;
+    	int NumberPieces(NumberArcs) ;
+    	double LinearTerm(TotalNumberPieces) ;
+    	double ConstantTerm(TotalNumberPieces) ;
+
+    // group attributes:
+    		:type = "HydroUnitBlock" ;
+    data:
+
+     StartArc = 0, 1, 5, 5, 2, 2, 6, 6, 7, 7 ;
+
+     EndArc = 1, 2, 2, 2, 6, 6, 7, 7, 8, 8 ;
+
+     Inflows =
+  0.0244135573860183,
+  0.012276032334115,
+  0.0434302774544331,
+  0.068215660937341,
+  0.010599104881624,
+  0.0392734100918671 ;
+
+     InitialVolumetric = 71.6, 0.7, 5.6, 100.895, 1.1, 1.15 ;
+
+     MaxVolumetric =
+  143.2,
+  1.4,
+  11.2,
+  201.79,
+  2.2,
+  2.3 ;
+
+     InitialFlowRate = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+
+     DeltaRampUp =
+  20.2, 24, 103.3, 103.3, 24, 24, 27.5, 27.5, 16, 16 ;
+
+     DeltaRampDown =
+  20.2, 24, 103.3, 103.3, 24, 24, 27.5, 27.5, 16, 16 ;
+
+     MaxFlow =
+  0.057204, 0.104328, 0.1116, 0.1116, 0.135, 0.135, 0.144324, 0.144324, 
+        0.197514, 0.197514 ;
+
+     MaxPower =
+  20.2, 24, 103.3, 103.3, 24, 24, 27.5, 27.5, 16, 16 ;
+
+     NumberPieces = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
+
+     LinearTerm = 352, 230, 925, 925, 178, 178, 194, 194, 81, 81 ;
+
+     ConstantTerm = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+    } // group UnitBlock_0
+  } // group Block_0
+}

@@ -1,0 +1,97 @@
+netcdf Nore\,_Uvdal_\&_Other_400 {
+
+// global attributes:
+		:SMS++_file_type = 1 ;
+
+group: Block_0 {
+  dimensions:
+  	TimeHorizon = 96 ;
+  	NumberNodes = 1 ;
+  	NumberUnits = 1 ;
+  variables:
+  	double ActivePowerDemand(NumberNodes, TimeHorizon) ;
+
+  // group attributes:
+  		:type = "UCBlock" ;
+  data:
+
+   ActivePowerDemand =
+  400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 
+      400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 
+      400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 
+      400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 
+      400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 
+      400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 
+      400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400, 400 ;
+
+  group: UnitBlock_0 {
+    dimensions:
+    	One = 1 ;
+    	NumberArcs = 18 ;
+    	NumberReservoirs = 5 ;
+    	TotalNumberPieces = 18 ;
+    	NumberIntervals = 96 ;
+    variables:
+    	int StartArc(NumberArcs) ;
+    	int EndArc(NumberArcs) ;
+    	double Inflows(NumberReservoirs, One) ;
+    	double InitialVolumetric(NumberReservoirs) ;
+    	double MaxVolumetric(NumberReservoirs, One) ;
+    	int InitialFlowRate(NumberArcs) ;
+    	double DeltaRampUp(One, NumberArcs) ;
+    	double DeltaRampDown(One, NumberArcs) ;
+    	double MaxFlow(One, NumberArcs) ;
+    	double MaxPower(One, NumberArcs) ;
+    	int NumberPieces(NumberArcs) ;
+    	double LinearTerm(TotalNumberPieces) ;
+    	double ConstantTerm(TotalNumberPieces) ;
+
+    // group attributes:
+    		:type = "HydroUnitBlock" ;
+    data:
+
+     StartArc = 0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 2, 2, 2, 2, 2, 4, 4 ;
+
+     EndArc = 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 5, 5 ;
+
+     Inflows =
+  0.0165025247634192,
+  0.00110949442037949,
+  0.00545463627597148,
+  0.00201560042823413,
+  0.00398017658573032 ;
+
+     InitialVolumetric = 145, 176, 1.3, 110, 68 ;
+
+     MaxVolumetric =
+  290,
+  352,
+  2.6,
+  220,
+  136 ;
+
+     InitialFlowRate = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+
+     DeltaRampUp =
+  6, 27, 27, 27, 27, 27, 27, 27, 27, 46, 46, 20.5, 20.5, 30, 30, 3, 26, 26 ;
+
+     DeltaRampDown =
+  6, 27, 27, 27, 27, 27, 27, 27, 27, 46, 46, 20.5, 20.5, 30, 30, 3, 26, 26 ;
+
+     MaxFlow =
+  0.1908, 0.0324, 0.0324, 0.0324, 0.0324, 0.0324, 0.0324, 0.0324, 0.0324, 
+        0.0342, 0.0342, 0.045054, 0.045054, 0.122616, 0.122616, 0.0198, 
+        0.18027, 0.18027 ;
+
+     MaxPower =
+  6, 27, 27, 27, 27, 27, 27, 27, 27, 46, 46, 20.5, 20.5, 30, 30, 3, 26, 26 ;
+
+     NumberPieces = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
+
+     LinearTerm = 32, 795, 795, 795, 795, 795, 795, 795, 795, 1315, 1315, 
+        444, 444, 212, 212, 146, 133, 133 ;
+
+     ConstantTerm = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+    } // group UnitBlock_0
+  } // group Block_0
+}
