@@ -1,20 +1,27 @@
 # src/main.py
+from pyexpat import model
 import sys
 from pathlib import Path
-
 # Ajoute la racine du projet au PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+import pyomo.environ as pyo
+
+from model import build_thermal_model
 from src.io.read_data import read_smspp_file
 from src import config
 from src.model.build_model import build_model
+from src.model.build_thermal_model import build_thermal_model
+from src.io.visualize import visualize_results
+
+
 from src.solve.solver import solve_model
 
 def main():
-    print(f"Lecture du fichier SMSPP : {config.SMSPP_FILE}")
+    print(f"Lecture du fichier thermal : {config.THERMAL_FILE}")
 
-    raw_data = read_smspp_file(config.SMSPP_FILE)  
-    model = build_model(raw_data)
+    raw_data = read_smspp_file(config.THERMAL_FILE)  
+    model = build_thermal_model(raw_data)
 
     print("Données chargées avec succès")
     print("Horizon T =", raw_data["time"]["T"])
@@ -26,6 +33,10 @@ def main():
             model.f[a, t].fix(0.0)
             model.pa[a, t].fix(0.0)
     results = solve_model(model, tee=False)
+
+    outdir = Path("outputs") / "plots"
+    visualize_results(model, outdir=outdir, show=False, max_units=10)
+
 
     status = str(results.solver.status).lower()
     term = str(results.solver.termination_condition).lower()
