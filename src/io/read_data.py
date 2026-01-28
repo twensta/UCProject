@@ -78,65 +78,122 @@ def read_smspp_file(filename):
 
         # --- Hydro ---
         elif gtype == "HydroUnitBlock":
-            # dimensions
+
             num_intervals = g.dimensions["NumberIntervals"].size if "NumberIntervals" in g.dimensions else TimeHorizon
             num_res = g.dimensions["NumberReservoirs"].size if "NumberReservoirs" in g.dimensions else 1
             num_arcs = g.dimensions["NumberArcs"].size if "NumberArcs" in g.dimensions else 1
 
-            # --- Réservoirs ---
+            # =========================
+            # INIT STRUCTURES (ONCE)
+            # =========================
+            if "A_turb" not in data["SETS"]:
+                data["SETS"]["A_turb"] = []
+            if "J" not in data["SETS"]:
+                data["SETS"]["J"] = []
+
+            if not data["reservoirs"]:
+                data["reservoirs"] = {
+                    "V0": {},
+                    "Vmin": {},
+                    "Vmax": {},
+                    "inflow": {}
+                }
+
+            if not data["arcs"]:
+                data["arcs"] = {
+                    "from": {},
+                    "to": {},
+                    "f_min": {},
+                    "f_max": {},
+                    "p_min": {},
+                    "p_max": {},
+                    "RU": {},
+                    "RD": {}
+                }
+
+            if "graph" not in data:
+                data["graph"] = {
+                    "In": {},
+                    "Out": {}
+                }
+
+            # =========================
+            # RESERVOIRS
+            # =========================
             for r in range(num_res):
                 res_name = f"{gname}_res{r}"
                 data["SETS"]["V"].append(res_name)
 
-                inflows = g["Inflows"][r, :].tolist() if "Inflows" in g.variables else [0.0] * num_intervals
                 V0 = float(np.squeeze(g["InitialVolumetric"][r])) if "InitialVolumetric" in g.variables else 0.0
+                inflows = g["Inflows"][r, :].tolist() if "Inflows" in g.variables else [0.0] * num_intervals
                 Vmin = g["MinVolumetric"][r, :].tolist() if "MinVolumetric" in g.variables else [0.0] * num_intervals
-                Vmax = g["MaxVolumetric"][r, :].tolist() if "MaxVolumetric" in g.variables else [1e6] * num_intervals
+                Vmax = g["MaxVolumetric"][r, :].tolist() if "MaxVolumetric" in g.variables else [1e9] * num_intervals
 
-                data["reservoirs"][res_name] = {
-                    "V0": V0,
-                    "inflow": {t + 1: float(inflows[t]) for t in range(num_intervals)},
-                    "Vmin": {t + 1: float(Vmin[t]) for t in range(num_intervals)},
-                    "Vmax": {t + 1: float(Vmax[t]) for t in range(num_intervals)},
-                }
+                data["reservoirs"]["V0"][res_name] = V0
 
-            # --- Arcs ---
-            # (ici on construit des arcs gname_arc0, gname_arc1, ...)
-            # NB: from/to sont inconnus dans ton script (tu mets arc_name->arc_name).
-            # On laisse brut, et la phase "transform" construira le vrai graphe.
+                for t in range(1, num_intervals + 1):
+                    data["reservoirs"]["inflow"][(res_name, t)] = float(inflows[t - 1])
+                    data["reservoirs"]["Vmin"][(res_name, t)] = float(Vmin[t - 1])
+                    data["reservoirs"]["Vmax"][(res_name, t)] = float(Vmax[t - 1])
+
+                data["graph"]["In"][res_name] = []
+                data["graph"]["Out"][res_name] = []
+
+            # =========================
+            # ARCS (TURBINES)
+            # =========================
             for a in range(num_arcs):
-                arc_id = f"{gname}_arc{a}"
-                data["SETS"]["A"].append(arc_id)
+                arc_name = f"{gname}_arc{a}"
+                data["SETS"]["A"].append(arc_name)
+                data["SETS"]["A_turb"].append(arc_name)
 
                 min_flow = g["MinFlow"][:, a].tolist() if "MinFlow" in g.variables else [0.0] * num_intervals
                 max_flow = g["MaxFlow"][:, a].tolist() if "MaxFlow" in g.variables else [1e6] * num_intervals
                 min_power = g["MinPower"][:, a].tolist() if "MinPower" in g.variables else [0.0] * num_intervals
                 max_power = g["MaxPower"][:, a].tolist() if "MaxPower" in g.variables else [1e6] * num_intervals
+
                 RU_arr = g["DeltaRampUp"][:, a].tolist() if "DeltaRampUp" in g.variables else [0.0] * num_intervals
                 RD_arr = g["DeltaRampDown"][:, a].tolist() if "DeltaRampDown" in g.variables else [0.0] * num_intervals
 
-                data["arcs"][arc_id] = {
-                    "from": arc_id,
-                    "to": arc_id,
-                    "f_min": {t + 1: float(min_flow[t]) for t in range(num_intervals)},
-                    "f_max": {t + 1: float(max_flow[t]) for t in range(num_intervals)},
-                    "RU_t": {t + 1: float(RU_arr[t]) for t in range(num_intervals)},  # brut (par t)
-                    "RD_t": {t + 1: float(RD_arr[t]) for t in range(num_intervals)},  # brut (par t)
-                    "p_min": {t + 1: float(min_power[t]) for t in range(num_intervals)},
-                    "p_max": {t + 1: float(max_power[t]) for t in range(num_intervals)},
-                }
+                data["arcs"]["from"][arc_name] = f"{gname}_res0"
+                data["arcs"]["to"][arc_name] = f"{gname}_res0"
+                data["arcs"]["RU"][arc_name] = float(max(RU_arr))
+                data["arcs"]["RD"][arc_name] = float(max(RD_arr))
 
-            # --- Segments turbine (brut) ---
-            # Ton code original n'était pas cohérent (p/rho) et sans f.
-            # Je les stocke "raw" pour que ton ami fasse la vraie conversion ensuite.
+                for t in range(1, num_intervals + 1):
+                    data["arcs"]["f_min"][(arc_name, t)] = float(min_flow[t - 1])
+                    data["arcs"]["f_max"][(arc_name, t)] = float(max_flow[t - 1])
+                    data["arcs"]["p_min"][(arc_name, t)] = float(min_power[t - 1])
+                    data["arcs"]["p_max"][(arc_name, t)] = float(max_power[t - 1])
+
+                # graph
+                data["graph"]["Out"][f"{gname}_res0"].append(arc_name)
+                data["graph"]["In"][f"{gname}_res0"].append(arc_name)
+
+            # =========================
+            # TURBINE PIECES (HPF)
+            # =========================
             if "LinearTerm" in g.variables and "ConstantTerm" in g.variables:
                 linear = g["LinearTerm"][:].tolist()
                 constant = g["ConstantTerm"][:].tolist()
+
                 for j in range(len(linear)):
-                    data["turbine_segments"][(gname, j)] = {
-                        "linear": linear[j],
-                        "constant": constant[j],
-                    }
+                    if j not in data["SETS"]["J"]:
+                        data["SETS"]["J"].append(j)
+
+                    for a in data["SETS"]["A_turb"]:
+                        if a.startswith(gname):
+                            data["turbine_segments"][(a, j)] = {
+                                "f": 0.0,
+                                "p": float(constant[j]),
+                                "rho": float(linear[j]),
+                            }
+
 
     nc.close()
     return data
+
+filename = "/home/enzosawaya/ProjetOptiDisc/UCProject/data/smspp-hydro-units-main-Given Data/Given Data/20090907_extended_pHydro_18_none.nc4"
+data = read_smspp_file(filename)
+
+print(data.keys())
