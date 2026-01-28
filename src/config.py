@@ -7,6 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 #DATA à utiliser
 SMSPP_FILE = PROJECT_ROOT / "data" / "smspp" / "20090907_extended_pHydro_18_none.nc4"
 THERMAL_FILE = PROJECT_ROOT / "data" / "thermal_data" / "10_0_1_w.nc4"
+HYDRO_FILE= PROJECT_ROOT / "data" / "Others" / "Aurland_1000.nc4"
 
 SOLVER_NAME = "highs"
 
