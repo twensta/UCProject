@@ -193,7 +193,3 @@ def read_smspp_file(filename):
     nc.close()
     return data
 
-filename = "/home/enzosawaya/ProjetOptiDisc/UCProject/data/smspp-hydro-units-main-Given Data/Given Data/20090907_extended_pHydro_18_none.nc4"
-data = read_smspp_file(filename)
-
-print(data.keys())

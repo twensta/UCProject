@@ -19,6 +19,12 @@ def main():
     print("Nb thermiques =", len(raw_data["SETS"]["G"]))
     print("Nb arcs hydro =", len(raw_data["SETS"]["A"]))
 
+    missing = [a for a, props in raw_data["arcs"].items() if "from" not in props]
+    print("Nb arcs sans 'from':", len(missing))
+    print("Exemples:", missing[:10])
+
+
+
 
 if __name__ == "__main__":
     main()
