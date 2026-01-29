@@ -10,5 +10,7 @@ THERMAL_FILE = PROJECT_ROOT / "data" / "thermal_data" / "10_0_1_w.nc4"
 HYDRO_FILE= PROJECT_ROOT / "data" / "Others" / "Aurland_1000.nc4"
 HT_FILE= PROJECT_ROOT / "data" / "Homemade" / "case3.nc"
 
+MODEL_NAME = "UC_T120_TU10_HU2"
+
 SOLVER_NAME = "highs"
 

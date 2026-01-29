@@ -2,44 +2,52 @@
 import sys
 from pathlib import Path
 
-# Ajoute la racine du projet au PYTHONPATH
+#Ajoute la racine du projet au PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import pyomo.environ as pyo
 
 from src.io.read_HT_data import read_smspp_file
-from src import config
 from src.model.build_model import build_model
 from src.solve.solver import solve_model
-
 from src.io.visualize import visualize_results
 
+from src import config
+
 def main():
-    print(f"Lecture du fichier SMSPP : {config.HT_FILE}")
+
+    #Lecture des données
+    print(f"Lecture des données d'entrées : {config.HT_FILE}...")
 
     raw_data = read_smspp_file(config.HT_FILE)  
-    model = build_model(raw_data)
 
     print("Données chargées avec succès")
     print("Horizon T =", raw_data["time"]["T"])
 
+    #Construction du modèle
+    print("Construction du modèle Pyomo...")
+    model = build_model(raw_data)
+
+    print("Modèle construit avec succès")
+
+    #Export du modèle (optionnel)
+    model.write(f"outputs/models/model_{config.MODEL_NAME}.lp", io_options={"symbolic_solver_labels": True})
+
     # Solve (HiGHS)
+    print(f"Résolution du modèle avec le solveur : {config.SOLVER_NAME}...")
+
     results = solve_model(model, tee=False)
 
-    status = str(results.solver.status).lower()
-    term = str(results.solver.termination_condition).lower()
+    status = str(results.solver.status)
+    term = str(results.solver.termination_condition)
 
     print("Solve status:", results.solver.status)
     print("Termination:", results.solver.termination_condition)
     print("Objective:", pyo.value(model.OBJ))
 
+    # Visualisation des résultats
+    print("Visualisation des résultats...")
     visualize_results(model, outdir=Path("outputs"), show=False)
     
-    if "ok" not in status and "success" not in status:
-        raise RuntimeError(f"Unexpected solver status: {results.solver.status}")
-    if "optimal" not in term:
-        raise RuntimeError(f"Expected optimal termination, got: {results.solver.termination_condition}")
-
-
 if __name__ == "__main__":
     main()

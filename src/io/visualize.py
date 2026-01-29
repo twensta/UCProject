@@ -136,7 +136,7 @@ def plot_hydro_flows_by_arc(
     if hydro is None or not hydro.flow_by_arc:
         return None
 
-    x = hydro.T  # focus on one day
+    x = hydro.T  # focus sur un jours : hydro.T[:24]
 
     # choose arcs
     arc_list = list(hydro.flow_by_arc.keys())
@@ -240,11 +240,7 @@ def visualize_results(
     max_units: Optional[int] = 10,
     data: Optional[Dict[str, Any]] = None,
 ) -> None:
-    """
-    Convenience wrapper: generates dispatch + thermal + hydro plots.
-    If you pass `data`, hydro arcs will be labeled with from/to reservoirs.
-    """
-    outdir.mkdir(parents=True, exist_ok=True)
+    
 
     p0 = plot_supply_demand(model, outdir=outdir, show=show)
     p1 = plot_dispatch_with_hydro(model, outdir=outdir, show=show)
@@ -253,18 +249,11 @@ def visualize_results(
     p3 = plot_hydro_flows_by_arc(model, outdir=outdir, data=data, show=show)
     p4 = plot_reservoir_volumes(model, outdir=outdir, show=show)
 
-    try:
-        obj = pyo.value(model.OBJ)
-    except Exception:
-        obj = None
-
     print("Saved plots:")
     print(" -", p0)
     print(" -", p1)
     print(" -", p2)
-    if p3 is not None:
-        print(" -", p3)
-    if p4 is not None:
-        print(" -", p4)
-    if obj is not None:
-        print("Objective:", obj)
+    print(" -", p3)
+    print(" -", p4)
+
+        
