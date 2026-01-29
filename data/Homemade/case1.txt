@@ -471,6 +471,7 @@ group: Block_0 {
             double Inflows(NumberReservoirs, One) ;
             double InitialVolumetric(NumberReservoirs) ;
             double MaxVolumetric(NumberReservoirs, One) ;
+            double MinVolumetric(NumberReservoirs, One) ;
             int InitialFlowRate(NumberArcs) ;
             double DeltaRampUp(One, NumberArcs) ;
             double DeltaRampDown(One, NumberArcs) ;
@@ -499,6 +500,8 @@ group: Block_0 {
 
         InitialVolumetric = 1.5, 224, 22.9, 93.975, 97, 1.4 ;
         MaxVolumetric =3, 448, 45.8, 187.95, 194, 2.8 ;
+        MinVolumetric =0.15, 50, 4.5,18.7,20,0.1;
+
         InitialFlowRate = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
         
         DeltaRampUp = 9, 38, 135, 135, 135, 135, 31.5, 31.5, 72, 280, 280, 280 ;
@@ -532,6 +535,7 @@ group: Block_0 {
             double Inflows(NumberReservoirs, One) ;
             double InitialVolumetric(NumberReservoirs) ;
             double MaxVolumetric(NumberReservoirs, One) ;
+            double MinVolumetric(NumberReservoirs, One) ;
             int InitialFlowRate(NumberArcs) ;
             double DeltaRampUp(One, NumberArcs) ;
             double DeltaRampDown(One, NumberArcs) ;
@@ -551,7 +555,8 @@ group: Block_0 {
         Inflows = 0.0230657504407391,0.0552107366869878 ;
         InitialVolumetric = 102.5, 0.35 ;
         MaxVolumetric = 205,0.7 ;
-        
+        MinVolumetric = 30, 0.1 ;
+
         InitialFlowRate = 0, 0, 0, 0 ;
         DeltaRampUp = 35, 35, 49, 49 ;
         DeltaRampDown = 35, 35, 49, 49 ;

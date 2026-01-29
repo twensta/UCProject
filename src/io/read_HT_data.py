@@ -42,7 +42,7 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
         if "ActivePowerDemand" not in block.variables:
             raise KeyError("Variable 'ActivePowerDemand' introuvable sous Block_0.")
 
-        ActivePowerDemand = np.array(block["ActivePowerDemand"][:])
+        ActivePowerDemand = np.array(block["ActivePowerDemand"][:])*2
         # gère (T,) ou (T, zones) ou (zones, T) etc. => on somme tout sauf l'axe temps
         if ActivePowerDemand.ndim == 1:
             data["demand"] = {t + 1: float(ActivePowerDemand[t]) for t in range(TimeHorizon)}

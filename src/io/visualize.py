@@ -31,7 +31,7 @@ def plot_supply_demand(model, outdir: Path, show: bool = False) -> Path:
     plt.title("Supply vs Demand")
     plt.legend()
 
-    outpath = outdir / "supply_vs_demand.png"
+    outpath = outdir / "plots" / "supply_vs_demand.png"
     plt.savefig(outpath, bbox_inches="tight", dpi=150)
 
     if show:
@@ -75,7 +75,7 @@ def plot_dispatch_with_hydro(model, outdir: Path, show: bool = False) -> Path:
     plt.title("Dispatch (thermal + hydro) vs demand")
     plt.legend()
 
-    outpath = outdir / "dispatch_with_hydro.png"
+    outpath = outdir / "plots" / "dispatch_with_hydro.png"
     plt.savefig(outpath, bbox_inches="tight", dpi=150)
     if show:
         plt.show()
@@ -107,7 +107,7 @@ def plot_unit_dispatch(model, outdir: Path, max_units: Optional[int] = 10, show:
     plt.title("Thermal unit dispatch")
     plt.legend(ncol=2, fontsize=8)
 
-    outpath = outdir / "thermal_dispatch.png"
+    outpath = outdir / "plots" /"thermal_dispatch.png"
     plt.savefig(outpath, bbox_inches="tight", dpi=150)
 
     if show:
@@ -166,7 +166,7 @@ def plot_hydro_flows_by_arc(
     plt.title("Hydro flow by arc")
     plt.legend(fontsize=8, ncol=2)
 
-    outpath = outdir / "hydro_flow_by_arc.png"
+    outpath = outdir / "plots" /"hydro_flow_by_arc.png"
     plt.savefig(outpath, bbox_inches="tight", dpi=150)
     if show:
         plt.show()
@@ -207,7 +207,7 @@ def plot_reservoir_volumes(
     plt.title("Reservoir volumes over time")
     plt.legend(fontsize=8, ncol=2)
 
-    outpath = outdir / "reservoir_volumes.png"
+    outpath = outdir / "plots" / "reservoir_volumes.png"
     plt.savefig(outpath, bbox_inches="tight", dpi=150)
     if show:
         plt.show()

@@ -215,7 +215,7 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
 
     m.VolBounds = pyo.Constraint(m.R, m.T, rule=V_bounds_rule) #La rule doit retourner (borne_inf, variable, borne_sup)
 
-    attachment = 3600.0 * delta_t  # seconds in dt hours
+    
 
     # Initial volume: V[v, first_t] = V0[v]
     first_t = T_list[0]
@@ -229,6 +229,8 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     graph = data["graph"]   # {"In": {r: [...]}, "Out": {r: [...]}}
 
     # Mass balance: V_{r,t+1} = V_{r,t} + attachment * ( inflow_{r,t} + sum_{a in IN } f_{a,t} - sum_{a in OUT} f_{a,t} )
+    attachment = delta_t  # seconds in dt hours
+    
     def mass_balance_rule(mm, r, t):
 
         if t == mm.T.last():
