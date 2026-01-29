@@ -53,7 +53,7 @@ def read_smspp_file(filename):
 
         # --- Thermiques ---
         if gtype == "ThermalUnitBlock":
-            unit_name = gname
+            unit_name = gname + "_Thermal"
             data["SETS"]["G"].append(unit_name)
 
             p_min_val = float(np.squeeze(g["MinPower"][:]))
@@ -69,12 +69,11 @@ def read_smspp_file(filename):
                 data["thermal"]["p_min"][(unit_name, t)] = p_min_val
                 data["thermal"]["p_max"][(unit_name, t)] = p_max_val
                 data["thermal"]["cost"][(unit_name, t)] = cost_val
-
-            data["thermal"]["startup_cost"][unit_name] = startup_cost_val
-            data["thermal"]["RU"][unit_name] = RU_val
-            data["thermal"]["RD"][unit_name] = RD_val
-            data["thermal"]["min_up"][unit_name] = min_up_val
-            data["thermal"]["min_down"][unit_name] = min_down_val
+                data["thermal"]["startup_cost"][unit_name] = startup_cost_val
+                data["thermal"]["RU"][unit_name] = RU_val
+                data["thermal"]["RD"][unit_name] = RD_val
+                data["thermal"]["min_up"][unit_name] = min_up_val
+                data["thermal"]["min_down"][unit_name] = min_down_val
 
         # --- Hydro ---
         elif gtype == "HydroUnitBlock":
