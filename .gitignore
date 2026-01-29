@@ -20,29 +20,3 @@ dist/
 build/
 .eggs/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# VS Code / IDE
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Fichiers de solveurs / sorties modèles
-*.lp
-*.mps
-*.sol
-*.glpk
-*.cbc
-*.sav
-
-# Données temporaires
-*.csv~
-*.xlsx~
-*.tmp
-
-# OS
-.DS_Store
-Thumbs.db
