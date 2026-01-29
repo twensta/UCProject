@@ -1,28 +1,17 @@
+# data/
 
-Build the full UC MILP model in Pyomo.
+This folder contains all input datasets used in the project.
 
-    Expected 'data' structure (minimum):
-      data["time"] = {"T": int, "delta_t": float}
-      data["SETS"] = {"T": [1..T], "G": [...], "V": [...], "A": [...],
-                      "A_turb": [...], "A_pump": [...]}
-      data["demand"] = {t: float}
+It includes:
+- Original datasets from external sources  
+- Custom cases built by combining and adapting these datasets  
 
-      data["thermal"] with keys:
-        p_min[(g,t)], p_max[(g,t)], cost[(g,t)],
-        startup_cost[g], RU[g], RD[g], min_up[g], min_down[g]
+## Sources
 
-      data["reservoirs"] with keys:
-        V0[v], Vmin[(v,t)], Vmax[(v,t)], inflow[(v,t)]
+SMSPP Hydro & other cases  
+https://gitlab.com/lalikm1999/smspp-hydro-units/-/tree/main?ref_type=heads
 
-      data["arcs"] with keys:
-        from[a], to[a], f_min[(a,t)], f_max[(a,t)], RU[a], RD[a],
-        p_min[(a,t)], p_max[(a,t)]   # hydro power bounds for each arc
+UC Thermal data (ramping cases)  
+https://gitlab.com/smspp/ucblock/-/tree/develop/netCDF_files/UC_Data/T-Ramp
 
-      data["graph"] with keys:
-        In[v]  = list of arcs entering v
-        Out[v] = list of arcs leaving v
-
-      Turbine segments:
-        data["turbine_segments"][(a,j)] = {"f":..., "p":..., "rho":...}
-        and data["SETS"]["J"] = list of all j indices
-        (If you prefer per-arc J_a, you can adapt easily.)
+Custom cases are stored in netCDF4 format and are directly used by the model.

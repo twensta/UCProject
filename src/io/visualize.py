@@ -136,7 +136,7 @@ def plot_hydro_flows_by_arc(
     if hydro is None or not hydro.flow_by_arc:
         return None
 
-    x = hydro.T[1:24]  # focus on one day
+    x = hydro.T  # focus on one day
 
     # choose arcs
     arc_list = list(hydro.flow_by_arc.keys())
