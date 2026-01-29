@@ -162,6 +162,9 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
                 for r in range(num_res):
                     res_name = f"{gname}_res{r}"
                     data["SETS"]["V"].append(res_name)
+                    data["graph"]["In"][res_name] = []
+                    data["graph"]["Out"][res_name] = []
+
                     _ensure_res(res_name)
 
                     V0 = float(np.squeeze(g["InitialVolumetric"][r])) if "InitialVolumetric" in g.variables else 0.0
@@ -170,12 +173,12 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
                     Vmin = np.squeeze(g["MinVolumetric"][r]) if "MinVolumetric" in g.variables else 0.0
                     Vmax = np.squeeze(g["MaxVolumetric"][r]) if "MaxVolumetric" in g.variables else 1e12
 
-                    data["reservoirs"]["V0"][res_name] = float(V0)*1e6
-                    data["reservoirs"]["Vmin"][res_name] = float(Vmin)*1e6
-                    data["reservoirs"]["Vmax"][res_name] = float(Vmax)*1e6
+                    data["reservoirs"]["V0"][res_name] = float(V0) #hm^3
+                    data["reservoirs"]["Vmin"][res_name] = float(Vmin) #hm^3
+                    data["reservoirs"]["Vmax"][res_name] = float(Vmax) #hm^3
 
                     for t in range(1, num_intervals + 1):
-                        data["reservoirs"]["inflow"][(res_name, t)] = float(inflows)
+                        data["reservoirs"]["inflow"][(res_name, t)] = float(inflows) #hm^3 per time step (heure)
 
                 # ----- ARCS -----
                 # Ici: on lit des arcs "turbines" (et si tu as des pompes, on peut les détecter via un attribut ou variable)
@@ -184,11 +187,18 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
                 linear_terms = g["LinearTerm"][:] if "LinearTerm" in g.variables else None
                 constant_terms = g["ConstantTerm"][:] if "ConstantTerm" in g.variables else None
 
+                # --- Segments HPF (init une seule fois) ---
+                if "segments" not in data:
+                    data["segments"] = {"J": {}, "p": {}, "rho": {}, "f0": {},"u":{}}
+
                 for a in range(num_arcs):
 
                     
                     arc_name = f"{gname}_arc{a}"
+
                     data["SETS"]["A"].append(arc_name)
+                    data["segments"]["J"][arc_name] = [] # liste des segments disponibles pour cet arc
+
 
                     min_flow = float(np.squeeze(g["MinFlow"][0,a])) if "MinFlow" in g.variables else 0.0
                     max_flow = float(np.squeeze(g["MaxFlow"][0,a])) if "MaxFlow" in g.variables else 1e9
@@ -217,22 +227,41 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
 
 
                     for j in range(number_pieces):
-                        pj = float(np.squeeze(constant_terms[a+j])) if constant_terms is not None else 0.0
-                        rj = float(np.squeeze(u*linear_terms[a+j])) if linear_terms is not None else 0.0
+                        pj = float(np.squeeze(constant_terms[a+j])) 
+                        rj = float(np.squeeze(u*linear_terms[a+j])) 
 
                         data["arcs"]["p"][(arc_name, "p_" + str(j))] = float(pj)
                         data["arcs"]["r"][(arc_name, "r_" + str(j))] = float(rj)
 
 
-                    from_res = int(np.squeeze(g["StartArc"][a])) if "FromReservoir" in g.variables else -1
-                    to_res = int(np.squeeze(g["EndArc"][a])) if "EndArc" in g.variables else -1
+                        # --- remplir data["segments"] ---
+                        data["segments"]["J"][arc_name].append(j)
+                        data["segments"]["p"][(arc_name, j)] = pj
+                        data["segments"]["rho"][(arc_name, j)] = rj
+                        data["segments"]["f0"][(arc_name, j)] = 0.0   # si tu n'as pas encore les breakpoints
+                        data["segments"]["u"][arc_name] = u      # turbine ou pompe
+
+
+                    from_res = int(np.squeeze(g["StartArc"][a]))
+                    to_res = int(np.squeeze(g["EndArc"][a]))
 
                     if to_res < num_res :
-                        data["arcs"]["from"][arc_name] = f"{gname}_res{from_res}"
-                        data["arcs"]["to"][arc_name] = f"{gname}_res{to_res}"
+                        data["arcs"]["from"][arc_name] = f"{gname}_res{from_res}" #Cette arc provient du reservoir from_res
+                        data["arcs"]["to"][arc_name] = f"{gname}_res{to_res}"     #Cette arc va vers le réservervoir to_res
+
+                        data["graph"]["Out"][f"{gname}_res{from_res}"].append(arc_name) #Cette arc est une sortie du reservoir from_res
+                        data["graph"]["In"][f"{gname}_res{to_res}"].append(arc_name)   #Cette arc est une entrée du reservoir to_res
+                           
                     else :
                         data["arcs"]["from"][arc_name] = f"{gname}_res{from_res}"
                         data["arcs"]["to"][arc_name] = "sink"
+
+                        data["graph"]["Out"][f"{gname}_res{from_res}"].append(arc_name)
+
+                        
+
+
+
         return data
 
     finally:

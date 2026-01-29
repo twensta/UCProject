@@ -1,27 +1,28 @@
 # src/main.py
 import sys
 from pathlib import Path
-import pyomo.environ as pyo
 
 # Ajoute la racine du projet au PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from tests.test_read_hydro_data import read_hydro_data
+import pyomo.environ as pyo
+
+from src.io.read_HT_data import read_smspp_file
 from src import config
-from src.model.build_hydro_model import build_hydro_model
+from src.model.build_model import build_model
 from src.solve.solver import solve_model
 
-def main():
-    print(f"Lecture du fichier SMSPP : {config.HYDRO_FILE}")
+from src.io.visualize import visualize_results
 
-    raw_data = read_hydro_data(config.HYDRO_FILE)  
-    model = build_hydro_model(raw_data)
+def main():
+    print(f"Lecture du fichier SMSPP : {config.HT_FILE}")
+
+    raw_data = read_smspp_file(config.HT_FILE)  
+    model = build_model(raw_data)
 
     print("Données chargées avec succès")
     print("Horizon T =", raw_data["time"]["T"])
 
-
-    
     # Solve (HiGHS)
     results = solve_model(model, tee=False)
 
@@ -32,6 +33,8 @@ def main():
     print("Termination:", results.solver.termination_condition)
     print("Objective:", pyo.value(model.OBJ))
 
+    visualize_results(model, outdir=Path("outputs"), show=False)
+    
     if "ok" not in status and "success" not in status:
         raise RuntimeError(f"Unexpected solver status: {results.solver.status}")
     if "optimal" not in term:

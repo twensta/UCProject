@@ -56,6 +56,19 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     delta_t = float(data["time"]["delta_t"])  # hours
     m.delta_t = pyo.Param(initialize=delta_t, within=pyo.PositiveReals)
 
+
+    # Turbine segments indexing
+    segs = data["segments"]
+
+    # Ensemble des couples valides (a,j)
+    AJ = [(a, j) for a, Js in segs["J"].items() for j in Js]
+    m.AJ = pyo.Set(initialize=AJ, dimen=2)
+
+    m.seg_p   = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["p"][(a, j)],   within=pyo.Reals)
+    m.seg_rho = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["rho"][(a, j)], within=pyo.Reals)
+    m.seg_f   = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["f0"][(a, j)],  within=pyo.Reals)
+    m.seg_u   = pyo.Param(m.A,   initialize=lambda mm, a: segs["u"][a],        within=pyo.Reals)  # turbine=1, pompe=0 
+
     # Demande
     # ICI on récupère un dictionnaire du type : demand = {1: 120, 2: 130, 3: 125, ...} ie {t : demande(t)}
     demand = data["demand"]
@@ -83,48 +96,39 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     graph = data["graph"]  # {"In":{v:[...]}, "Out":{v:[...]}}
 
     m.V0 = pyo.Param(m.R, initialize=lambda _, r: float(res["V0"][r]))
-    m.Vmin = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["Vmin"][(r, t)]))
-    m.Vmax = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["Vmax"][(r, t)]))
+    m.Vmin = pyo.Param(m.R, initialize=lambda _, r: float(res["Vmin"][r]))
+    m.Vmax = pyo.Param(m.R, initialize=lambda _, r: float(res["Vmax"][r]))
     m.inflow = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["inflow"][(r, t)]))  # m3/s
 
     m.arc_from = pyo.Param(m.A, initialize=lambda _, a: arcs["from"][a], within=pyo.Any)
     m.arc_to = pyo.Param(m.A, initialize=lambda _, a: arcs["to"][a], within=pyo.Any)
 
-    m.fmin = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["f_min"][(a, t)]))
-    m.fmax = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["f_max"][(a, t)]))
+    m.fmin = pyo.Param(m.A, initialize=lambda _, a: float(arcs["f_min"][a]))
+    m.fmax = pyo.Param(m.A, initialize=lambda _, a: float(arcs["f_max"][a]))
     m.RU_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RU"][a]))  # (m3/s)/h
     m.RD_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RD"][a]))  # (m3/s)/h
 
     # Power bounds on arcs (turbines/pumps). If you don't have them, set wide bounds in data.
-    m.pmin_a = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["p_min"][(a, t)]))
-    m.pmax_a = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["p_max"][(a, t)]))
+    m.pmin_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["p_min"][a]))
+    m.pmax_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["p_max"][a]))
 
-    # Turbine segments (HPF)
-    turb_segs = data.get("turbine_segments", {})
-    J_set = list(data["SETS"].get("J", []))
-    m.J = pyo.Set(initialize=J_set, ordered=True)
 
-    # Helper: which (a,j) exist?
-    AJ = [(a, j) for (a, j) in turb_segs.keys()]
-    m.AJ = pyo.Set(dimen=2, initialize=AJ)
-
-    m.seg_f = pyo.Param(m.AJ, initialize=lambda _, a, j: float(turb_segs[(a, j)]["f"]))
-    m.seg_p = pyo.Param(m.AJ, initialize=lambda _, a, j: float(turb_segs[(a, j)]["p"]))
-    m.seg_rho = pyo.Param(m.AJ, initialize=lambda _, a, j: float(turb_segs[(a, j)]["rho"]))
+    # Turbine piecewise linear segments
+    #A FAIRE!!!!!!!!!!!!
 
     # -----------------------
     # Decision variables
     # -----------------------
     # Thermal
-    m.u = pyo.Var(m.G, m.T, within=pyo.Binary)
-    m.y = pyo.Var(m.G, m.T, within=pyo.Binary)  # startup
-    m.z = pyo.Var(m.G, m.T, within=pyo.Binary)  # shutdown
-    m.pg = pyo.Var(m.G, m.T, within=pyo.NonNegativeReals)
+    m.u = pyo.Var(m.G, m.T, within=pyo.Binary)  # ON/OFF
+    m.y = pyo.Var(m.G, m.T, within=pyo.Binary)  # Startup
+    m.z = pyo.Var(m.G, m.T, within=pyo.Binary)  # Shutdown
+    m.pg = pyo.Var(m.G, m.T, within=pyo.NonNegativeReals) #Création des pg_{g,t} (puissance) pour chaque centrale thermique et chaque instant
 
     # Hydro
-    m.V = pyo.Var(m.R, m.T, within=pyo.Reals)  #Variable des volumes pour chaque réservoirs et chaque instant
-    m.f = pyo.Var(m.A, m.T, within=pyo.Reals)
-    m.pa = pyo.Var(m.A, m.T, within=pyo.Reals)
+    m.V = pyo.Var(m.R, m.T, within=pyo.Reals)  #Création des V_{r,t} (volume) pour chaque réservoirs et chaque instant
+    m.f = pyo.Var(m.A, m.T, within=pyo.Reals)  #Création des f_{a,t} (débit) pour chaque arc et chaque instant
+    m.pa = pyo.Var(m.A, m.T, within=pyo.Reals) #Creation des p_{a,t} (puissance) pour chaque arc et chaque instant
 
     # -----------------------
     # Objective
@@ -204,11 +208,12 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     # -----------------------
     # Constraints - Hydro
     # -----------------------
+
     # Volume bounds
     def V_bounds_rule(mm, r, t):
-        return (mm.Vmin[r, t], mm.V[r, t], mm.Vmax[r, t])
+        return (mm.Vmin[r], mm.V[r, t], mm.Vmax[r])
 
-    m.VolBounds = pyo.Constraint(m.R, m.T, rule=V_bounds_rule)
+    m.VolBounds = pyo.Constraint(m.R, m.T, rule=V_bounds_rule) #La rule doit retourner (borne_inf, variable, borne_sup)
 
     attachment = 3600.0 * delta_t  # seconds in dt hours
 
@@ -218,26 +223,33 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     def init_vol_rule(mm, r):
         return mm.V[r, first_t] == mm.V0[r]
 
-    m.InitVol = pyo.Constraint(m.R, rule=init_vol_rule)
+    m.InitVol = pyo.Constraint(m.R, rule=init_vol_rule) #La rule doit retourner une égalité ==
 
-    # Mass balance: V_{t+1} = V_t + 3600 dt ( inflow + sum_in f - sum_out f )
+
+    graph = data["graph"]   # {"In": {r: [...]}, "Out": {r: [...]}}
+
+    # Mass balance: V_{r,t+1} = V_{r,t} + attachment * ( inflow_{r,t} + sum_{a in IN } f_{a,t} - sum_{a in OUT} f_{a,t} )
     def mass_balance_rule(mm, r, t):
-        idx = T_list.index(t)
-        if idx == len(T_list) - 1:
+
+        if t == mm.T.last():
             return pyo.Constraint.Skip
-        tnext = T_list[idx + 1]
-        infl = mm.inflow[r, t]
+        tnext = mm.T.next(t)
+
         in_arcs = graph["In"].get(r, [])
         out_arcs = graph["Out"].get(r, [])
+
         return mm.V[r, tnext] == mm.V[r, t] + attachment * (
-            infl + sum(mm.f[a, t] for a in in_arcs) - sum(mm.f[a, t] for a in out_arcs)
+            mm.inflow[r, t]
+            + sum(mm.f[a, t] for a in in_arcs)
+            - sum(mm.f[a, t] for a in out_arcs)
         )
 
     m.MassBalance = pyo.Constraint(m.R, m.T, rule=mass_balance_rule)
 
+
     # Flow bounds
     def flow_bounds_rule(mm, a, t):
-        return (mm.fmin[a, t], mm.f[a, t], mm.fmax[a, t])
+        return (mm.fmin[a], mm.f[a, t], mm.fmax[a])
 
     m.FlowBounds = pyo.Constraint(m.A, m.T, rule=flow_bounds_rule)
 
@@ -259,35 +271,20 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
 
     # Power bounds on arcs
     def arc_p_bounds_rule(mm, a, t):
-        return (mm.pmin_a[a, t], mm.pa[a, t], mm.pmax_a[a, t])
+        return (mm.pmin_a[a], mm.pa[a, t], mm.pmax_a[a])
 
     m.ArcPowerBounds = pyo.Constraint(m.A, m.T, rule=arc_p_bounds_rule)
 
+
     # Turbine HPF envelope: p_{a,t} <= p_j + rho_j (f_{a,t} - f_j)
-    # Only for existing (a,j) in AJ
     def hpf_rule(mm, a, j, t):
-        return mm.pa[a, t] <= mm.seg_p[a, j] + mm.seg_rho[a, j] * (mm.f[a, t] - mm.seg_f[a, j])
+        
+        if mm.seg_u[a] == 1:  # turbine
+            return mm.pa[a, t] <= mm.seg_p[a, j] + mm.seg_rho[a, j] * (mm.f[a, t] - mm.seg_f[a, j])
+        else:  # pompe
+            return mm.pa[a, t] >= mm.seg_p[a, j] + mm.seg_rho[a, j] * (mm.f[a, t] - mm.seg_f[a, j])
 
-    # Build a 3D index (a,j,t) but only for a in A_turb and (a,j) existing
-    def hpf_index_init(mm):
-        idxs = []
-        for (a, j) in AJ:
-            if a in A_turb:
-                for t in T_list:
-                    idxs.append((a, j, t))
-        return idxs
-
-    m.HPF_INDEX = pyo.Set(dimen=3, initialize=hpf_index_init)
-    m.HPF = pyo.Constraint(m.HPF_INDEX, rule=lambda mm, a, j, t: hpf_rule(mm, a, j, t))
-
-    # Pumps: p = rho f
-    pump_rho = data.get("pump_rho", {})  # {a: rho}
-    m.pump_rho = pyo.Param(m.A_pump, initialize=lambda _, a: float(pump_rho[a]) if a in pump_rho else 0.0)
-
-    def pump_rule(mm, a, t):
-        return mm.pa[a, t] == mm.pump_rho[a] * mm.f[a, t]
-
-    m.PumpLaw = pyo.Constraint(m.A_pump, m.T, rule=pump_rule)
+    m.HPF = pyo.Constraint(m.AJ, m.T, rule=hpf_rule)
 
     # -----------------------
     # System balance

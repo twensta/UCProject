@@ -20,8 +20,7 @@ def main():
     print("Nb thermiques =", len(raw_data["SETS"]["G"]))
     print("Nb arcs hydro =", len(raw_data["SETS"]["A"]))
 
-    pprint(raw_data["arcs"])
-    pprint(raw_data["arcs"])
+    pprint(raw_data["segments"])
 
     """missing = [a for a, props in raw_data["arcs"].items() if "from" not in props]
     print("Nb arcs sans 'from':", len(missing))
