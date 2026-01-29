@@ -42,7 +42,7 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
         if "ActivePowerDemand" not in block.variables:
             raise KeyError("Variable 'ActivePowerDemand' introuvable sous Block_0.")
 
-        ActivePowerDemand = np.array(block["ActivePowerDemand"][:])*2
+        ActivePowerDemand = np.array(block["ActivePowerDemand"][:])*1.5
         # gère (T,) ou (T, zones) ou (zones, T) etc. => on somme tout sauf l'axe temps
         if ActivePowerDemand.ndim == 1:
             data["demand"] = {t + 1: float(ActivePowerDemand[t]) for t in range(TimeHorizon)}
@@ -66,7 +66,9 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
         data["thermal"] = {
             "p_min": {},
             "p_max": {},
-            "cost": {},
+            "const_cost": {},
+            "lin_cost":{},
+            "quad_cost":{},
             "startup_cost": {},
             "RU": {},
             "RD": {},
@@ -137,13 +139,17 @@ def read_smspp_file(filename: str | Path) -> Dict[str, Any]:
                 RD_val = _squeeze_float(g["DeltaRampDown"])
                 min_up_val = _squeeze_int(g["MinUpTime"])
                 min_down_val = _squeeze_int(g["MinDownTime"])
-                cost_val = _squeeze_float(g["LinearTerm"])  # coût linéaire utilisé dans ton modèle
+                const_cost = _squeeze_float(g["ConstTerm"])
+                lin_cost = _squeeze_float(g["LinearTerm"])  # coût linéaire utilisé dans ton modèle
+                quad_cost = _squeeze_float(g["QuadTerm"])
 
                 # time-expanded (toutes périodes identiques dans ce format)
                 for t in range(1, TimeHorizon + 1):
                     data["thermal"]["p_min"][(unit_name, t)] = p_min_val
                     data["thermal"]["p_max"][(unit_name, t)] = p_max_val
-                    data["thermal"]["cost"][(unit_name, t)] = cost_val
+                    data["thermal"]["const_cost"][(unit_name, t)] = const_cost
+                    data["thermal"]["lin_cost"][(unit_name, t)] = lin_cost
+                    data["thermal"]["quad_cost"][(unit_name, t)] = quad_cost
 
                 # unit-level
                 data["thermal"]["startup_cost"][unit_name] = startup_cost_val

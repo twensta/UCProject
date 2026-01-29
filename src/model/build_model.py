@@ -6,38 +6,13 @@ import pyomo.environ as pyo
 
 def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     """
-    Build the full UC MILP model in Pyomo.
-
-    Expected 'data' structure (minimum):
-      data["time"] = {"T": int, "delta_t": float}
-      data["SETS"] = {"T": [1..T], "G": [...], "V": [...], "A": [...],
-                      "A_turb": [...], "A_pump": [...]}
-      data["demand"] = {t: float}
-
-      data["thermal"] with keys:
-        p_min[(g,t)], p_max[(g,t)], cost[(g,t)],
-        startup_cost[g], RU[g], RD[g], min_up[g], min_down[g]
-
-      data["reservoirs"] with keys:
-        V0[v], Vmin[(v,t)], Vmax[(v,t)], inflow[(v,t)]
-
-      data["arcs"] with keys:
-        from[a], to[a], f_min[(a,t)], f_max[(a,t)], RU[a], RD[a],
-        p_min[(a,t)], p_max[(a,t)]   # hydro power bounds for each arc
-
-      data["graph"] with keys:
-        In[v]  = list of arcs entering v
-        Out[v] = list of arcs leaving v
-
-      Turbine segments:
-        data["turbine_segments"][(a,j)] = {"f":..., "p":..., "rho":...}
-        and data["SETS"]["J"] = list of all j indices
-        (If you prefer per-arc J_a, you can adapt easily.)
+    Build le UC MILP model en Pyomo
     """
+
     m = pyo.ConcreteModel(name="UC_Pyomo")
 
     # -----------------------
-    # Sets / basic params
+    # Sets
     # -----------------------
     T_set: List[int] = list(data["SETS"]["T"])
     G_set: List[str] = list(data["SETS"]["G"])
@@ -57,17 +32,7 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     m.delta_t = pyo.Param(initialize=delta_t, within=pyo.PositiveReals)
 
 
-    # Turbine segments indexing
-    segs = data["segments"]
-
-    # Ensemble des couples valides (a,j)
-    AJ = [(a, j) for a, Js in segs["J"].items() for j in Js]
-    m.AJ = pyo.Set(initialize=AJ, dimen=2)
-
-    m.seg_p   = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["p"][(a, j)],   within=pyo.Reals)
-    m.seg_rho = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["rho"][(a, j)], within=pyo.Reals)
-    m.seg_f   = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["f0"][(a, j)],  within=pyo.Reals)
-    m.seg_u   = pyo.Param(m.A,   initialize=lambda mm, a: segs["u"][a],        within=pyo.Reals)  # turbine=1, pompe=0 
+    
 
     # Demande
     # ICI on récupère un dictionnaire du type : demand = {1: 120, 2: 130, 3: 125, ...} ie {t : demande(t)}
@@ -79,14 +44,16 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     # -----------------------
     th = data["thermal"]
 
-    m.pmin_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["p_min"][(g, t)]))
-    m.pmax_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["p_max"][(g, t)]))
-    m.cost_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["cost"][(g, t)]))
-    m.startup_cost = pyo.Param(m.G, initialize=lambda _, g: float(th["startup_cost"][g]))
-    m.RU_g = pyo.Param(m.G, initialize=lambda _, g: float(th["RU"][g]))  # MW/h
-    m.RD_g = pyo.Param(m.G, initialize=lambda _, g: float(th["RD"][g]))  # MW/h
-    m.min_up = pyo.Param(m.G, initialize=lambda _, g: int(th["min_up"][g]))
-    m.min_down = pyo.Param(m.G, initialize=lambda _, g: int(th["min_down"][g]))
+    m.pmin_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["p_min"][(g, t)])) #MW
+    m.pmax_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["p_max"][(g, t)])) #MW
+    m.const_cost_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["const_cost"][(g, t)])) #euros
+    m.lin_cost_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["lin_cost"][(g, t)])) #euros/MW
+    m.quad_cost_g = pyo.Param(m.G, m.T, initialize=lambda _, g, t: float(th["quad_cost"][(g, t)])) #euros/MW^2
+    m.startup_cost = pyo.Param(m.G, initialize=lambda _, g: float(th["startup_cost"][g])) #euros
+    m.RU_g = pyo.Param(m.G, initialize=lambda _, g: float(th["RU"][g]))  #MW/h
+    m.RD_g = pyo.Param(m.G, initialize=lambda _, g: float(th["RD"][g]))  #MW/h
+    m.min_up = pyo.Param(m.G, initialize=lambda _, g: int(th["min_up"][g])) #time step h
+    m.min_down = pyo.Param(m.G, initialize=lambda _, g: int(th["min_down"][g])) #time step h
 
     # -----------------------
     # Hydro parameters
@@ -95,47 +62,58 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     arcs = data["arcs"]
     graph = data["graph"]  # {"In":{v:[...]}, "Out":{v:[...]}}
 
-    m.V0 = pyo.Param(m.R, initialize=lambda _, r: float(res["V0"][r]))
-    m.Vmin = pyo.Param(m.R, initialize=lambda _, r: float(res["Vmin"][r]))
-    m.Vmax = pyo.Param(m.R, initialize=lambda _, r: float(res["Vmax"][r]))
-    m.inflow = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["inflow"][(r, t)]))  # m3/s
+    m.V0 = pyo.Param(m.R, initialize=lambda _, r: float(res["V0"][r])) #hm^3
+    m.Vmin = pyo.Param(m.R, initialize=lambda _, r: float(res["Vmin"][r])) #hm^3
+    m.Vmax = pyo.Param(m.R, initialize=lambda _, r: float(res["Vmax"][r])) #hm^3
+    m.inflow = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["inflow"][(r, t)]))  #hm3/h
 
     m.arc_from = pyo.Param(m.A, initialize=lambda _, a: arcs["from"][a], within=pyo.Any)
     m.arc_to = pyo.Param(m.A, initialize=lambda _, a: arcs["to"][a], within=pyo.Any)
 
-    m.fmin = pyo.Param(m.A, initialize=lambda _, a: float(arcs["f_min"][a]))
-    m.fmax = pyo.Param(m.A, initialize=lambda _, a: float(arcs["f_max"][a]))
-    m.RU_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RU"][a]))  # (m3/s)/h
-    m.RD_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RD"][a]))  # (m3/s)/h
+    m.fmin = pyo.Param(m.A, initialize=lambda _, a: float(arcs["f_min"][a])) #hm3/h
+    m.fmax = pyo.Param(m.A, initialize=lambda _, a: float(arcs["f_max"][a])) #hm3/h
+    m.RU_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RU"][a]))  # (hm3/h)/h
+    m.RD_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RD"][a]))  # (hm3/h)/h
 
-    # Power bounds on arcs (turbines/pumps). If you don't have them, set wide bounds in data.
-    m.pmin_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["p_min"][a]))
-    m.pmax_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["p_max"][a]))
+    #Power bounds on arcs (turbines/pumps). If you don't have them, set wide bounds in data.
+    m.pmin_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["p_min"][a])) #MW
+    m.pmax_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["p_max"][a])) #MW
 
+    #Turbine segments indexing
+    segs = data["segments"]
 
-    # Turbine piecewise linear segments
-    #A FAIRE!!!!!!!!!!!!
+    # Ensemble des couples valides (a,j)
+    AJ = [(a, j) for a, Js in segs["J"].items() for j in Js]
+    m.AJ = pyo.Set(initialize=AJ, dimen=2)
+
+    m.seg_p   = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["p"][(a, j)],   within=pyo.Reals) #MW
+    m.seg_rho = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["rho"][(a, j)], within=pyo.Reals) #MW / (hm^3/h)
+    m.seg_f   = pyo.Param(m.AJ, initialize=lambda mm, a, j: segs["f0"][(a, j)],  within=pyo.Reals) #hm^3/h
+    m.seg_u   = pyo.Param(m.A,   initialize=lambda mm, a: segs["u"][a],        within=pyo.Reals)   #turbine=1, pompe=0 
 
     # -----------------------
     # Decision variables
     # -----------------------
-    # Thermal
+    #Thermal
     m.u = pyo.Var(m.G, m.T, within=pyo.Binary)  # ON/OFF
     m.y = pyo.Var(m.G, m.T, within=pyo.Binary)  # Startup
     m.z = pyo.Var(m.G, m.T, within=pyo.Binary)  # Shutdown
     m.pg = pyo.Var(m.G, m.T, within=pyo.NonNegativeReals) #Création des pg_{g,t} (puissance) pour chaque centrale thermique et chaque instant
 
-    # Hydro
+    #Hydro
     m.V = pyo.Var(m.R, m.T, within=pyo.Reals)  #Création des V_{r,t} (volume) pour chaque réservoirs et chaque instant
     m.f = pyo.Var(m.A, m.T, within=pyo.Reals)  #Création des f_{a,t} (débit) pour chaque arc et chaque instant
     m.pa = pyo.Var(m.A, m.T, within=pyo.Reals) #Creation des p_{a,t} (puissance) pour chaque arc et chaque instant
 
     # -----------------------
-    # Objective
+    # Objective function
     # -----------------------
+
+    #+ mm.quad_cost_g[g, t] * mm.pg[g, t]**2
+
     def obj_rule(mm: pyo.ConcreteModel) -> pyo.Expr:
         return sum(
-            mm.cost_g[g, t] * mm.delta_t * mm.pg[g, t] + mm.startup_cost[g] * mm.y[g, t]
+            (mm.const_cost_g[g, t] + mm.lin_cost_g[g, t] * mm.pg[g, t] )  + mm.startup_cost[g] * mm.y[g, t]
             for g in mm.G
             for t in mm.T
         )
@@ -230,7 +208,7 @@ def build_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
 
     # Mass balance: V_{r,t+1} = V_{r,t} + attachment * ( inflow_{r,t} + sum_{a in IN } f_{a,t} - sum_{a in OUT} f_{a,t} )
     attachment = delta_t  # seconds in dt hours
-    
+
     def mass_balance_rule(mm, r, t):
 
         if t == mm.T.last():

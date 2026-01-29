@@ -1,0 +1,589 @@
+netcdf \case1 {
+
+// global attributes:
+		:SMS++_file_type = 1 ;
+
+group: Block_0 {
+  dimensions:
+  	TimeHorizon = 120 ;
+  	NumberUnits = 12 ;
+  	NumberIntervals = 1 ;
+  variables:
+  	double ActivePowerDemand(TimeHorizon) ;
+
+  // group attributes:
+  		:type = "UCBlock" ;
+  data:
+
+   ActivePowerDemand = 
+947.591202, 898.959455, 736.444252, 733.903308, 748.401236, 805.530703, 960.130582, 1167.329019,
+1359.211191, 1419.351237, 1429.758909, 1454.499670, 1434.486464, 1321.733249, 1361.366250, 1368.341192,
+1356.867690, 1315.482145, 1263.325203, 1283.457020, 1324.316009, 1260.957361, 1148.390291, 1040.035399,
+1126.460293, 1061.900565, 863.999801, 857.491788, 874.913972, 946.350021, 1192.672256, 1458.456287,
+1701.364976, 1771.420292, 1773.050391, 1791.492556, 1759.776031, 1622.540752, 1674.875913, 1684.401763,
+1670.047789, 1626.982148, 1564.155924, 1588.256011, 1630.399622, 1547.801332, 1407.691680, 1278.324913,
+1095.056058, 1032.711553, 840.323671, 834.098506, 851.271082, 921.087116, 1148.874858, 1406.110960,
+1641.750046, 1709.208779, 1710.323819, 1728.153364, 1698.142592, 1565.265997, 1614.598827, 1622.121147,
+1609.100203, 1567.249532, 1507.533043, 1528.751010, 1565.916291, 1486.939085, 1357.782551, 1232.917400,
+948.400217, 899.279033, 735.585947, 731.512487, 744.978251, 800.949474, 956.856983, 1172.373359,
+1368.287734, 1428.887946, 1436.518133, 1457.903801, 1430.099957, 1315.677692, 1354.847413, 1364.301141,
+1359.571845, 1322.014320, 1270.980594, 1289.724850, 1327.947915, 1257.948131, 1144.167610, 1038.460908,
+947.228305, 898.378879, 736.889691, 734.398678, 748.136550, 804.600218, 959.030208, 1166.746176,
+1358.406167, 1418.281144, 1428.952395, 1453.488266, 1433.651065, 1321.639061, 1362.028896, 1369.361786,
+1357.675937, 1315.804263, 1262.580195, 1282.661406, 1323.774386, 1260.935870, 1149.038320, 1040.992790
+;
+
+
+
+  group: NetworkData {
+    dimensions:
+    	NumberNodes = 1 ;
+    } // group NetworkData
+
+  group: UnitBlock_0 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 32 ;
+
+     MaxPower = 118 ;
+
+     DeltaRampUp = 42.003808 ;
+
+     DeltaRampDown = 32.599073 ;
+
+     QuadTerm = 0.076988 ;
+
+     StartUpCost = 172.862432 ;
+
+     LinearTerm = 43.169962 ;
+
+     ConstTerm = 1337.77358 ;
+
+     InitialPower = 0 ;
+
+     InitUpDownTime = -1 ;
+
+     MinUpTime = 4 ;
+
+     MinDownTime = 3 ;
+    } // group UnitBlock_0
+
+  group: UnitBlock_1 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 37 ;
+
+     MaxPower = 119 ;
+
+     DeltaRampUp = 31.325072 ;
+
+     DeltaRampDown = 36.390287 ;
+
+     QuadTerm = 0.089293 ;
+
+     StartUpCost = 168.685601 ;
+
+     LinearTerm = 45.086696 ;
+
+     ConstTerm = 1362.656074 ;
+
+     InitialPower = 74.666609 ;
+
+     InitUpDownTime = 4 ;
+
+     MinUpTime = 3 ;
+
+     MinDownTime = 3 ;
+    } // group UnitBlock_1
+
+  group: UnitBlock_2 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 48 ;
+
+     MaxPower = 105 ;
+
+     DeltaRampUp = 20.632301 ;
+
+     DeltaRampDown = 21.831385 ;
+
+     QuadTerm = 0.030422 ;
+
+     StartUpCost = 162.202704 ;
+
+     LinearTerm = 40.460142 ;
+
+     ConstTerm = 1377.116721 ;
+
+     InitialPower = 0 ;
+
+     InitUpDownTime = -4 ;
+
+     MinUpTime = 4 ;
+
+     MinDownTime = 3 ;
+    } // group UnitBlock_2
+
+  group: UnitBlock_3 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 48 ;
+
+     MaxPower = 113 ;
+
+     DeltaRampUp = 27.869072 ;
+
+     DeltaRampDown = 27.091832 ;
+
+     QuadTerm = 0.061602 ;
+
+     StartUpCost = 160.219192 ;
+
+     LinearTerm = 49.007914 ;
+
+     ConstTerm = 1511.821917 ;
+
+     InitialPower = 85.048019 ;
+
+     InitUpDownTime = 2 ;
+
+     MinUpTime = 3 ;
+
+     MinDownTime = 4 ;
+    } // group UnitBlock_3
+
+  group: UnitBlock_4 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 47 ;
+
+     MaxPower = 102 ;
+
+     DeltaRampUp = 22.204262 ;
+
+     DeltaRampDown = 27.417263 ;
+
+     QuadTerm = 0.05243 ;
+
+     StartUpCost = 159.160047 ;
+
+     LinearTerm = 45.543018 ;
+
+     ConstTerm = 1468.958932 ;
+
+     InitialPower = 0 ;
+
+     InitUpDownTime = -4 ;
+
+     MinUpTime = 3 ;
+
+     MinDownTime = 3 ;
+    } // group UnitBlock_4
+
+  group: UnitBlock_5 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 50 ;
+
+     MaxPower = 190 ;
+
+     DeltaRampUp = 51.694535 ;
+
+     DeltaRampDown = 61.702851 ;
+
+     QuadTerm = 0.008156 ;
+
+     StartUpCost = 265.61696 ;
+
+     LinearTerm = 63.083598 ;
+
+     ConstTerm = 2577.797813 ;
+
+     InitialPower = 68.169224 ;
+
+     InitUpDownTime = 1 ;
+
+     MinUpTime = 8 ;
+
+     MinDownTime = 8 ;
+    } // group UnitBlock_5
+
+  group: UnitBlock_6 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 62 ;
+
+     MaxPower = 208 ;
+
+     DeltaRampUp = 67.064482 ;
+
+     DeltaRampDown = 49.715649 ;
+
+     QuadTerm = 0.007841 ;
+
+     StartUpCost = 273.416626 ;
+
+     LinearTerm = 59.217375 ;
+
+     ConstTerm = 2430.515449 ;
+
+     InitialPower = 120.163482 ;
+
+     InitUpDownTime = 1 ;
+
+     MinUpTime = 7 ;
+
+     MinDownTime = 8 ;
+    } // group UnitBlock_6
+
+  group: UnitBlock_7 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 55 ;
+
+     MaxPower = 211 ;
+
+     DeltaRampUp = 64.139573 ;
+
+     DeltaRampDown = 69.178653 ;
+
+     QuadTerm = 0.008667 ;
+
+     StartUpCost = 306.21623 ;
+
+     LinearTerm = 64.922892 ;
+
+     ConstTerm = 2624.935847 ;
+
+     InitialPower = 72.655836 ;
+
+     InitUpDownTime = 6 ;
+
+     MinUpTime = 8 ;
+
+     MinDownTime = 8 ;
+    } // group UnitBlock_7
+
+  group: UnitBlock_8 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 85 ;
+
+     MaxPower = 282 ;
+
+     DeltaRampUp = 89.618227 ;
+
+     DeltaRampDown = 78.751405 ;
+
+     QuadTerm = 0.002212 ;
+
+     StartUpCost = 445.842452 ;
+
+     LinearTerm = 61.188277 ;
+
+     ConstTerm = 3033.045523 ;
+
+     InitialPower = 0 ;
+
+     InitUpDownTime = -8 ;
+
+     MinUpTime = 13 ;
+
+     MinDownTime = 14 ;
+    } // group UnitBlock_8
+
+  group: UnitBlock_9 {
+    variables:
+    	double MinPower ;
+    	double MaxPower ;
+    	double DeltaRampUp ;
+    	double DeltaRampDown ;
+    	double QuadTerm ;
+    	double StartUpCost ;
+    	double LinearTerm ;
+    	double ConstTerm ;
+    	double InitialPower ;
+    	int64 InitUpDownTime ;
+    	uint64 MinUpTime ;
+    	uint64 MinDownTime ;
+
+    // group attributes:
+    		:type = "ThermalUnitBlock" ;
+    data:
+
+     MinPower = 84 ;
+     MaxPower = 323 ;
+     DeltaRampUp = 101.140357 ;
+     DeltaRampDown = 99.597226 ;
+     QuadTerm = 0.002835 ;
+     StartUpCost = 466.424559 ;
+     LinearTerm = 54.346844 ;
+     ConstTerm = 3057.595191 ;
+     InitialPower = 118.674849 ;
+     InitUpDownTime = 9 ;
+     MinUpTime = 14 ;
+     MinDownTime = 12 ;
+
+    } // group UnitBlock_9
+
+    group: UnitBlock_10 {
+        // Aurland_1000
+        dimensions:
+            One = 1;
+            NumberArcs = 12 ;
+            NumberReservoirs = 6 ;
+            TotalNumberPieces = 12 ;
+            NumberIntervals = 120 ;
+
+        variables:
+            int StartArc(NumberArcs) ;
+            int EndArc(NumberArcs) ;
+            double Inflows(NumberReservoirs, One) ;
+            double InitialVolumetric(NumberReservoirs) ;
+            double MaxVolumetric(NumberReservoirs, One) ;
+            double MinVolumetric(NumberReservoirs, One) ;
+            int InitialFlowRate(NumberArcs) ;
+            double DeltaRampUp(One, NumberArcs) ;
+            double DeltaRampDown(One, NumberArcs) ;
+            double MinFlow(One, NumberArcs) ;
+            double MaxFlow(One, NumberArcs) ;
+            double MinPower(One, NumberArcs) ;
+            double MaxPower(One, NumberArcs) ;
+            int NumberPieces(NumberArcs) ;
+            double LinearTerm(TotalNumberPieces) ;
+            double ConstantTerm(TotalNumberPieces) ;
+
+    // group attributes:
+    	    :type = "HydroUnitBlock" ;
+
+        data:
+            StartArc = 0, 5, 1, 1, 1, 1, 2, 2, 3, 4, 4, 4 ;
+            EndArc = 4, 6, 2, 2, 2, 2, 4, 4, 4, 5, 5, 5 ;
+
+        Inflows =
+            0.000624605054703276,
+            0.00220327717098628,
+            0.00324905211758197,
+            0.00286334515004084,
+            0.00185379577133088,
+            0.00398347784124406;
+
+        InitialVolumetric = 1.5, 224, 22.9, 93.975, 97, 1.4 ;
+        MaxVolumetric =3, 448, 45.8, 187.95, 194, 2.8 ;
+        MinVolumetric =0.15, 221, 20,91,93,0.1;
+
+        InitialFlowRate = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+        
+        DeltaRampUp = 9, 38, 135, 135, 135, 135, 31.5, 31.5, 72, 280, 280, 280 ;
+        DeltaRampDown = 9, 38, 135, 135, 135, 135, 31.5, 31.5, 72, 280, 280, 280 ;
+        
+        MinFlow = 0, 0, 0, 0, -0.14391, -0.14391, 0, 0, 0, 0, 0, 0 ;
+        MaxFlow = 0.009324, 0.324, 0.14391, 0.14391, 0, 0, 0.11151, 0.11151, 0.05796, 0.135, 0.135, 0.135 ;
+
+        MinPower = 0, 0, 0, 0, -135, -135, 0, 0, 0, 0, 0, 0 ;
+        MaxPower = 9, 38, 135, 135, 0, 0, 31.5, 31.5, 72, 280, 280, 280 ;
+
+        NumberPieces = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
+
+        LinearTerm = 965, 117, 938, 938, -938, -938, 268, 268, 1207, 2074, 2074, 2074 ;
+        ConstantTerm = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
+     
+    } // group UnitBlock_10
+
+    group: UnitBlock_11 {
+        //Hemsil
+        dimensions:
+            One = 1 ;
+            NumberArcs = 4 ;
+            NumberReservoirs = 2 ;
+            TotalNumberPieces = 4 ;
+            NumberIntervals = 120 ;
+
+        variables:
+            int StartArc(NumberArcs) ;
+            int EndArc(NumberArcs) ;
+            double Inflows(NumberReservoirs, One) ;
+            double InitialVolumetric(NumberReservoirs) ;
+            double MaxVolumetric(NumberReservoirs, One) ;
+            double MinVolumetric(NumberReservoirs, One) ;
+            int InitialFlowRate(NumberArcs) ;
+            double DeltaRampUp(One, NumberArcs) ;
+            double DeltaRampDown(One, NumberArcs) ;
+            double MaxFlow(One, NumberArcs) ;
+            double MaxPower(One, NumberArcs) ;
+            int NumberPieces(NumberArcs) ;
+            double LinearTerm(TotalNumberPieces) ;
+            double ConstantTerm(TotalNumberPieces) ;
+
+    // group attributes:
+    		:type = "HydroUnitBlock" ;
+        data:
+
+        StartArc = 0, 0, 1, 1 ;
+        EndArc = 1, 1, 2, 2 ;
+
+        Inflows = 0.0230657504407391,0.0552107366869878 ;
+        InitialVolumetric = 102.5, 0.35 ;
+        MaxVolumetric = 205,0.7 ;
+        MinVolumetric = 100, 0.1 ;
+
+        InitialFlowRate = 0, 0, 0, 0 ;
+        DeltaRampUp = 35, 35, 49, 49 ;
+        DeltaRampDown = 35, 35, 49, 49 ;
+
+        MaxFlow = 0.0288, 0.0288, 0.0558, 0.0558 ;
+        MaxPower = 35, 35, 49, 49 ;
+
+        NumberPieces = 1, 1, 1, 1 ;
+
+        LinearTerm = 1215, 1215, 878, 878 ;
+        ConstantTerm = 0, 0, 0, 0 ;
+
+    } // group UnitBlock_11
+
+  } // group Block_0
+}

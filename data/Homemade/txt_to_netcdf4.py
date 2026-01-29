@@ -24,8 +24,8 @@ def convert_cdl_to_netcdf4(cdl_path: Path, out_nc_path: Path) -> None:
     subprocess.run(cmd, check=True)
 
 def main():
-    in_path = Path("case1.txt")  # <- ton fichier
-    out_path = Path("case10.nc")  # <- sortie
+    in_path = Path("case2.txt")  # <- ton fichier
+    out_path = Path("case3.nc")  # <- sortie
 
     text = in_path.read_text(encoding="utf-8", errors="replace")
     if not is_cdl_netcdf(text):

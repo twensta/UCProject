@@ -6,7 +6,7 @@ from typing import Optional, Sequence, Dict, Any, List
 
 import matplotlib.pyplot as plt
 import pyomo.environ as pyo
-
+import numpy as np
 from src.io.utils import extract_dispatch_timeseries, extract_hydro_timeseries
 
 
@@ -136,7 +136,7 @@ def plot_hydro_flows_by_arc(
     if hydro is None or not hydro.flow_by_arc:
         return None
 
-    x = hydro.T
+    x = hydro.T[1:24]  # focus on one day
 
     # choose arcs
     arc_list = list(hydro.flow_by_arc.keys())
@@ -151,15 +151,31 @@ def plot_hydro_flows_by_arc(
         arc_to = data["arcs"]["to"]
 
     plt.figure()
-    for a in arc_list:
+    linestyles = ["-", "--", "-.", ":"]
+    base_colors = list(plt.get_cmap("tab10").colors) + list(plt.get_cmap("tab20").colors)
+    filtered_arcs = [a for a in arc_list if a[11] == "0"]
+
+    for i, a in enumerate(filtered_arcs):
         y = [hydro.flow_by_arc[a][t] for t in x]
-        if arc_from is not None and arc_to is not None:
+
+        if arc_from and arc_to:
             fr = arc_from.get(a, "?")
             to = arc_to.get(a, "?")
             label = f"{a}: {fr} → {to}"
         else:
             label = a
-        plt.plot(x, y, label=label)
+
+        color = base_colors[i % len(base_colors)]
+        style = linestyles[(i // len(base_colors)) % len(linestyles)]
+
+        plt.plot(
+            x,
+            y,
+            label=label,
+            color=color,
+            linestyle=style,
+            linewidth=1.5,
+        )
 
     plt.xlabel("Time step")
     plt.ylabel("Flow")
@@ -199,8 +215,10 @@ def plot_reservoir_volumes(
 
     plt.figure()
     for r in res_list:
-        y = [hydro.volume_by_res[r][t] for t in x]
-        plt.plot(x, y, label=r)
+        if r[11] == "0":
+            y = np.array([hydro.volume_by_res[r][t] for t in x], dtype=float)
+            y = (y - y.min()) / (y.max() - y.min() + 1e-12)
+            plt.plot(x, y, label=r)
 
     plt.xlabel("Time step")
     plt.ylabel("Volume (or level)")
