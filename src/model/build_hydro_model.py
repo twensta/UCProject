@@ -211,7 +211,7 @@ def build_hydro_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
 
     m.VolBounds = pyo.Constraint(m.R, m.T, rule=V_bounds_rule)
 
-    attachment = 3600.0 * delta_t  # seconds in dt hours
+    attachment = 3600.0 * delta_t/1e6 # seconds in dt hours
 
     # Initial volume: V[v, first_t] = V0[v]
     T_list = T_set
@@ -227,13 +227,14 @@ def build_hydro_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
         idx = T_list.index(t)
         if idx == len(T_list) - 1:
             return pyo.Constraint.Skip
+
         tnext = T_list[idx + 1]
-        infl = mm.inflow[r, t]
-        in_arcs = graph["In"].get(r, [])
-        out_arcs = graph["Out"].get(r, [])
+
         return mm.V[r, tnext] == mm.V[r, t] + attachment * (
-            infl + sum(mm.f[a, t] for a in in_arcs) - sum(mm.f[a, t] for a in out_arcs)
+            mm.inflow[r, t]
+            + sum(sign * mm.f[a, t] for (a, sign) in graph["Adj"][r])
         )
+
 
     m.MassBalance = pyo.Constraint(m.R, m.T, rule=mass_balance_rule)
 
@@ -295,7 +296,11 @@ def build_hydro_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     # System balance
     # -----------------------
     def balance_rule(mm, t):
-        return sum(mm.pg[g, t] for g in mm.G) + sum(mm.pa[a, t] for a in mm.A) >= mm.d[t]
+        return (
+        sum(mm.pg[g, t] for g in mm.G)  # thermique
+        + sum(mm.pa[a, t] for a in mm.A_turb)  # hydro turbines uniquement
+        >= mm.d[t]
+    )
 
     m.Balance = pyo.Constraint(m.T, rule=balance_rule)
 

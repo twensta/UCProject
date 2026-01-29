@@ -1,6 +1,7 @@
 # src/main.py
 import sys
 from pathlib import Path
+import pyomo.environ as pyo
 
 # Ajoute la racine du projet au PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -22,10 +23,6 @@ def main():
 
     
     # Solve (HiGHS)
-    for a in model.A:
-        for t in model.T:
-            model.f[a, t].fix(0.0)
-            model.pa[a, t].fix(0.0)
     results = solve_model(model, tee=False)
 
     status = str(results.solver.status).lower()
