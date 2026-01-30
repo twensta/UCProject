@@ -12,6 +12,8 @@ from src.model.build_model import build_model
 from src.solve.solver import solve_model
 from src.io.visualize import visualize_results
 
+from src.io.animation import animate_hydro_network
+
 from src import config
 
 def main():
@@ -48,6 +50,9 @@ def main():
     # Visualisation des résultats
     print("Visualisation des résultats...")
     visualize_results(model, outdir=Path("outputs"), show=False)
+
+    # Si ton modèle a bien model.v[res,t] et model.f[arc,t]
+    animate_hydro_network(model, outpath=Path("outputs/hydro.gif"), data=raw_data, fps=10, show=False)
     
 if __name__ == "__main__":
     main()
