@@ -5,35 +5,7 @@ import pyomo.environ as pyo
 
 
 def build_thermal_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
-    """
-    Build the full UC MILP model in Pyomo.
-
-    Expected 'data' structure (minimum):
-      data["time"] = {"T": int, "delta_t": float}
-      data["SETS"] = {"T": [1..T], "G": [...], "V": [...], "A": [...],
-                      "A_turb": [...], "A_pump": [...]}
-      data["demand"] = {t: float}
-
-      data["thermal"] with keys:
-        p_min[(g,t)], p_max[(g,t)], cost[(g,t)],
-        startup_cost[g], RU[g], RD[g], min_up[g], min_down[g]
-
-      data["reservoirs"] with keys:
-        V0[v], Vmin[(v,t)], Vmax[(v,t)], inflow[(v,t)]
-
-      data["arcs"] with keys:
-        from[a], to[a], f_min[(a,t)], f_max[(a,t)], RU[a], RD[a],
-        p_min[(a,t)], p_max[(a,t)]   # hydro power bounds for each arc
-
-      data["graph"] with keys:
-        In[v]  = list of arcs entering v
-        Out[v] = list of arcs leaving v
-
-      Turbine segments:
-        data["turbine_segments"][(a,j)] = {"f":..., "p":..., "rho":...}
-        and data["SETS"]["J"] = list of all j indices
-        (If you prefer per-arc J_a, you can adapt easily.)
-    """
+   
     m = pyo.ConcreteModel(name="UC_Pyomo")
 
     # -----------------------
@@ -75,44 +47,6 @@ def build_thermal_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     m.min_up = pyo.Param(m.G, initialize=lambda _, g: int(th["min_up"][g]))
     m.min_down = pyo.Param(m.G, initialize=lambda _, g: int(th["min_down"][g]))
 
-    """
-    # -----------------------
-    # Hydro parameters
-    # -----------------------
-    res = data["reservoirs"]
-    arcs = data["arcs"]
-    graph = data["graph"]  # {"In":{v:[...]}, "Out":{v:[...]}}
-
-    m.V0 = pyo.Param(m.R, initialize=lambda _, r: float(res["V0"][r]))
-    m.Vmin = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["Vmin"][(r, t)]))
-    m.Vmax = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["Vmax"][(r, t)]))
-    m.inflow = pyo.Param(m.R, m.T, initialize=lambda _, r, t: float(res["inflow"][(r, t)]))  # m3/s
-
-    m.arc_from = pyo.Param(m.A, initialize=lambda _, a: arcs["from"][a], within=pyo.Any)
-    m.arc_to = pyo.Param(m.A, initialize=lambda _, a: arcs["to"][a], within=pyo.Any)
-
-    m.fmin = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["f_min"][(a, t)]))
-    m.fmax = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["f_max"][(a, t)]))
-    m.RU_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RU"][a]))  # (m3/s)/h
-    m.RD_a = pyo.Param(m.A, initialize=lambda _, a: float(arcs["RD"][a]))  # (m3/s)/h
-
-    # Power bounds on arcs (turbines/pumps). If you don't have them, set wide bounds in data.
-    m.pmin_a = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["p_min"][(a, t)]))
-    m.pmax_a = pyo.Param(m.A, m.T, initialize=lambda _, a, t: float(arcs["p_max"][(a, t)]))
-
-    # Turbine segments (HPF)
-    turb_segs = data.get("turbine_segments", {})
-    J_set = list(data["SETS"].get("J", []))
-    m.J = pyo.Set(initialize=J_set, ordered=True)
-
-    # Helper: which (a,j) exist?
-    AJ = [(a, j) for (a, j) in turb_segs.keys()]
-    m.AJ = pyo.Set(dimen=2, initialize=AJ)
-
-    m.seg_f = pyo.Param(m.AJ, initialize=lambda _, a, j: float(turb_segs[(a, j)]["f"]))
-    m.seg_p = pyo.Param(m.AJ, initialize=lambda _, a, j: float(turb_segs[(a, j)]["p"]))
-    m.seg_rho = pyo.Param(m.AJ, initialize=lambda _, a, j: float(turb_segs[(a, j)]["rho"]))
-    """
     # -----------------------
     # Decision variables
     # -----------------------
@@ -122,12 +56,6 @@ def build_thermal_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
     m.z = pyo.Var(m.G, m.T, within=pyo.Binary)  # shutdown
     m.pg = pyo.Var(m.G, m.T, within=pyo.NonNegativeReals)
 
-    """
-    # Hydro
-    m.V = pyo.Var(m.R, m.T, within=pyo.Reals)  #Variable des volumes pour chaque réservoirs et chaque instant
-    m.f = pyo.Var(m.A, m.T, within=pyo.Reals)
-    m.pa = pyo.Var(m.A, m.T, within=pyo.Reals)
-    """
     # -----------------------
     # Objective
     # -----------------------
@@ -202,96 +130,6 @@ def build_thermal_model(data: Dict[str, Any]) -> pyo.ConcreteModel:
         return sum(1 - mm.u[g, k] for k in window) >= tau * mm.z[g, t]
 
     m.ThMinDown = pyo.Constraint(m.G, m.T, rule=th_min_down_rule)
-
-    """
-    # -----------------------
-    # Constraints - Hydro
-    # -----------------------
-    # Volume bounds
-    def V_bounds_rule(mm, r, t):
-        return (mm.Vmin[r, t], mm.V[r, t], mm.Vmax[r, t])
-
-    m.VolBounds = pyo.Constraint(m.R, m.T, rule=V_bounds_rule)
-
-    attachment = 3600.0 * delta_t  # seconds in dt hours
-
-    # Initial volume: V[v, first_t] = V0[v]
-    first_t = T_list[0]
-
-    def init_vol_rule(mm, r):
-        return mm.V[r, first_t] == mm.V0[r]
-
-    m.InitVol = pyo.Constraint(m.R, rule=init_vol_rule)
-
-    # Mass balance: V_{t+1} = V_t + 3600 dt ( inflow + sum_in f - sum_out f )
-    def mass_balance_rule(mm, r, t):
-        idx = T_list.index(t)
-        if idx == len(T_list) - 1:
-            return pyo.Constraint.Skip
-        tnext = T_list[idx + 1]
-        infl = mm.inflow[r, t]
-        in_arcs = graph["In"].get(r, [])
-        out_arcs = graph["Out"].get(r, [])
-        return mm.V[r, tnext] == mm.V[r, t] + attachment * (
-            infl + sum(mm.f[a, t] for a in in_arcs) - sum(mm.f[a, t] for a in out_arcs)
-        )
-
-    m.MassBalance = pyo.Constraint(m.R, m.T, rule=mass_balance_rule)
-
-    # Flow bounds
-    def flow_bounds_rule(mm, a, t):
-        return (mm.fmin[a, t], mm.f[a, t], mm.fmax[a, t])
-
-    m.FlowBounds = pyo.Constraint(m.A, m.T, rule=flow_bounds_rule)
-
-    # Flow ramping
-    def flow_ramp_up_rule(mm, a, t):
-        if t == first_t:
-            return pyo.Constraint.Skip
-        tprev = T_list[T_list.index(t) - 1]
-        return mm.f[a, t] - mm.f[a, tprev] <= mm.RU_a[a] * mm.delta_t
-
-    def flow_ramp_dn_rule(mm, a, t):
-        if t == first_t:
-            return pyo.Constraint.Skip
-        tprev = T_list[T_list.index(t) - 1]
-        return mm.f[a, tprev] - mm.f[a, t] <= mm.RD_a[a] * mm.delta_t
-
-    m.FlowRampUp = pyo.Constraint(m.A, m.T, rule=flow_ramp_up_rule)
-    m.FlowRampDn = pyo.Constraint(m.A, m.T, rule=flow_ramp_dn_rule)
-
-    # Power bounds on arcs
-    def arc_p_bounds_rule(mm, a, t):
-        return (mm.pmin_a[a, t], mm.pa[a, t], mm.pmax_a[a, t])
-
-    m.ArcPowerBounds = pyo.Constraint(m.A, m.T, rule=arc_p_bounds_rule)
-
-    # Turbine HPF envelope: p_{a,t} <= p_j + rho_j (f_{a,t} - f_j)
-    # Only for existing (a,j) in AJ
-    def hpf_rule(mm, a, j, t):
-        return mm.pa[a, t] <= mm.seg_p[a, j] + mm.seg_rho[a, j] * (mm.f[a, t] - mm.seg_f[a, j])
-
-    # Build a 3D index (a,j,t) but only for a in A_turb and (a,j) existing
-    def hpf_index_init(mm):
-        idxs = []
-        for (a, j) in AJ:
-            if a in A_turb:
-                for t in T_list:
-                    idxs.append((a, j, t))
-        return idxs
-
-    m.HPF_INDEX = pyo.Set(dimen=3, initialize=hpf_index_init)
-    m.HPF = pyo.Constraint(m.HPF_INDEX, rule=lambda mm, a, j, t: hpf_rule(mm, a, j, t))
-
-    # Pumps: p = rho f
-    pump_rho = data.get("pump_rho", {})  # {a: rho}
-    m.pump_rho = pyo.Param(m.A_pump, initialize=lambda _, a: float(pump_rho[a]) if a in pump_rho else 0.0)
-
-    def pump_rule(mm, a, t):
-        return mm.pa[a, t] == mm.pump_rho[a] * mm.f[a, t]
-
-    m.PumpLaw = pyo.Constraint(m.A_pump, m.T, rule=pump_rule)
-    """
 
     # -----------------------
     # System balance
