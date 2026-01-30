@@ -1,6 +1,5 @@
 # src/model/build_model.py
-from __future__ import annotations
-from typing import Any, Dict, Iterable, Tuple, List
+from typing import List
 import pyomo.environ as pyo
 
 
@@ -110,7 +109,7 @@ def build_model(data):
     #------------------------------------------------------
     #-| Défintions de la fonction objectif (minimisation des coûts)
     #------------------------------------------------------
-    def obj_rule(mm: pyo.ConcreteModel) -> pyo.Expr:
+    def obj_rule(mm: pyo.ConcreteModel):
         return sum(
             (mm.const_cost_g[g, t] + mm.lin_cost_g[g, t] * mm.pg[g, t] )  + mm.startup_cost[g] * mm.y[g, t]
             for g in mm.G
@@ -260,7 +259,7 @@ def build_model(data):
     m.HPF = pyo.Constraint(m.AJ, m.T, rule=hpf_rule)
 
     #------------------------------------------------------
-    #-| Définitions de la contrainte d'équilibre
+    #-| Définition de la contrainte d'équilibre
     #------------------------------------------------------
     def balance_rule(mm, t):
         return sum(mm.pg[g, t] for g in mm.G) + sum(mm.pa[a, t] for a in mm.A) >= mm.d[t]
